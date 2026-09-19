@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="uz">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Materiallarni boshqarish | Student Hub</title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+    <style>
+
+        .admin-materials-page {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 40px 20px 70px;
+        }
+
+        .admin-materials-header {
+            margin-bottom: 30px;
+        }
+
+        .admin-materials-header h1 {
+            margin-bottom: 8px;
+        }
+
+        .admin-materials-header p {
+            opacity: 0.7;
+        }
+
+        .material-form-card {
+            background: #ffffff;
+            padding: 25px;
+            border-radius: 18px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            margin-bottom: 35px;
+        }
+
+        .material-form-card h2 {
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+
+        .material-form {
+            display: grid;
+            gap: 17px;
+        }
+
+        .form-group {
+            display: grid;
+            gap: 7px;
+        }
+
+        .form-group label {
+            font-weight: 600;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            box-sizing: border-box;
+
+            padding: 12px 14px;
+
+            border: 1px solid #d6d9e0;
+            border-radius: 10px;
+
+            font: inherit;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .file-info {
+            font-size: 13px;
+            opacity: 0.65;
+        }
+
+        .material-submit-button {
+            border: none;
+            border-radius: 10px;
+
+            padding: 13px 20px;
+
+            background: #4f6df5;
+            color: white;
+
+            font-size: 15px;
+            font-weight: 600;
+
+            cursor: pointer;
+        }
+
+        .material-submit-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        #materialMessage {
+            font-weight: 600;
+            min-height: 20px;
+        }
+
+        .materials-list-section h2 {
+            margin-bottom: 18px;
+        }
+
+        .admin-materials-list {
+            display: grid;
+            gap: 15px;
+        }
+
+        .admin-material-card {
+            background: #ffffff;
+
+            padding: 20px;
+
+            border-radius: 16px;
+
+            box-shadow:
+                0 5px 20px
+                rgba(0, 0, 0, 0.07);
+
+            display: flex;
+
+            justify-content: space-between;
+            align-items: center;
+
+            gap: 20px;
+        }
+
+        .admin-material-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            min-width: 0;
+        }
+
+        .admin-material-icon {
+            width: 55px;
+            height: 55px;
+
+            flex-shrink: 0;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 14px;
+
+            background:
+                rgba(79, 109, 245, 0.10);
+
+            font-size: 27px;
+        }
+
+        .admin-material-info {
+            min-width: 0;
+        }
+
+        .admin-material-info h3 {
+            margin: 0 0 5px;
+            overflow-wrap: anywhere;
+        }
+
+        .admin-material-info p {
+            margin: 4px 0;
+            opacity: 0.7;
+        }
+
+        .admin-material-info small {
+            opacity: 0.6;
+            overflow-wrap: anywhere;
+        }
+
+        .material-actions {
+            display: flex;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .material-open-button,
+        .material-delete-button {
+            display: inline-block;
+
+            padding: 9px 13px;
+
+            border-radius: 9px;
+
+            font-size: 14px;
+            font-weight: 600;
+
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .material-open-button {
+            background: #eef2ff;
+            color: #3346b5;
+        }
+
+        .material-delete-button {
+            border: none;
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .empty-materials {
+            padding: 35px 20px;
+            text-align: center;
+
+            background: #ffffff;
+
+            border-radius: 16px;
+
+            box-shadow:
+                0 5px 20px
+                rgba(0, 0, 0, 0.06);
+        }
+
+        .empty-materials div {
+            font-size: 40px;
+            margin-bottom: 8px;
+        }
+
+        body.dark-mode .material-form-card,
+        body.dark-mode .admin-material-card,
+        body.dark-mode .empty-materials {
+            background: #1f2937;
+            color: #f3f4f6;
+        }
+
+        body.dark-mode .form-group input,
+        body.dark-mode .form-group select,
+        body.dark-mode .form-group textarea {
+            background: #111827;
+            color: #f3f4f6;
+            border-color: #374151;
+        }
+
+        @media (max-width: 650px) {
+
+            .admin-material-card {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .material-actions {
+                width: 100%;
+            }
+
+            .material-open-button,
+            .material-delete-button {
+                flex: 1;
+                text-align: center;
+            }
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <header>
+
+        <nav>
+
+            <a href="index.html">
+                Bosh sahifa
+            </a>
+
+            <a href="admin.html">
+                Admin Panel
+            </a>
+
+            <a href="admin-tests.html">
+                Testlar
+            </a>
+
+            <a href="admin-users.html">
+                Foydalanuvchilar
+            </a>
+
+            <button
+                id="themeButton"
+                type="button"
+            >
+                🌙
+            </button>
+
+            <a
+                href="profile.html"
+                class="account-link"
+            >
+                Profil
+            </a>
+
+        </nav>
+
+    </header>
+
+
+    <main class="admin-materials-page">
+
+        <section class="admin-materials-header">
+
+            <h1>
+                📚 Materiallarni boshqarish
+            </h1>
+
+            <p>
+                Talabalar uchun yangi o‘quv
+                materiallarini yuklang va boshqaring.
+            </p>
+
+        </section>
+
+
+        <section class="material-form-card">
+
+            <h2>
+                ➕ Yangi material
+            </h2>
+
+
+            <form
+                id="materialForm"
+                class="material-form"
+            >
+
+                <div class="form-group">
+
+                    <label for="materialTitle">
+                        Material nomi
+                    </label>
+
+                    <input
+                        type="text"
+                        id="materialTitle"
+                        placeholder="Masalan: HTML asoslari"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="materialSubject">
+                        Fan
+                    </label>
+
+                    <select
+                        id="materialSubject"
+                        required
+                    >
+
+                        <option value="">
+                            Fanni tanlang
+                        </option>
+
+                        <option value="Dasturlash">
+                            Dasturlash
+                        </option>
+
+                        <option value="Telekommunikatsiya">
+                            Telekommunikatsiya
+                        </option>
+
+                        <option value="Axborot xavfsizligi">
+                            Axborot xavfsizligi
+                        </option>
+
+                        <option value="Boshqa">
+                            Boshqa
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="materialDescription">
+                        Tavsif
+                    </label>
+
+                    <textarea
+                        id="materialDescription"
+                        placeholder="Material haqida qisqacha ma’lumot..."
+                    ></textarea>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="materialFile">
+                        Fayl
+                    </label>
+
+                    <input
+                        type="file"
+                        id="materialFile"
+                        accept=".pdf,.docx,.pptx,.txt"
+                        required
+                    >
+
+                    <span class="file-info">
+                        PDF, DOCX, PPTX yoki TXT.
+                        Maksimal hajm: 20 MB.
+                    </span>
+
+                </div>
+
+
+                <button
+                    type="submit"
+                    id="materialSubmitButton"
+                    class="material-submit-button"
+                >
+                    📤 Material qo‘shish
+                </button>
+
+
+                <div id="materialMessage"></div>
+
+            </form>
+
+        </section>
+
+
+        <section class="materials-list-section">
+
+            <h2>
+                📂 Yuklangan materiallar
+            </h2>
+
+            <div
+                id="adminMaterialsList"
+                class="admin-materials-list"
+            >
+
+                <p>
+                    Materiallar yuklanmoqda...
+                </p>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <script src="admin-materials.js"></script>
+    <script src="navbar.js"></script>
+    <script src="theme.js"></script>
+
+</body>
+
+</html>

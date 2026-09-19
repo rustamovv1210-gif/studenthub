@@ -1,0 +1,8 @@
+server/node_modules/
+server/studenthub.db
+server/uploads/
+.env
+server/.env
+*.log
+.DS_Store
+Thumbs.db

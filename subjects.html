@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="uz">
+
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Fanlar | Student Hub</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+
+        /* =========================================
+           PAGE
+        ========================================= */
+
+        .subjects-page {
+            width: min(1200px, 92%);
+            margin: 0 auto;
+            padding: 50px 0 75px;
+        }
+
+
+        /* =========================================
+           HEADER
+        ========================================= */
+
+        .subjects-header {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 25px;
+            margin-bottom: 35px;
+        }
+
+        .subjects-header-text {
+            max-width: 720px;
+        }
+
+        .subjects-badge {
+            display: inline-block;
+            margin-bottom: 12px;
+            padding: 7px 12px;
+
+            border-radius: 20px;
+
+            background:
+                rgba(37, 99, 235, 0.10);
+
+            color: #2563eb;
+
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .subjects-header h2 {
+            margin: 0 0 10px;
+
+            font-size: clamp(
+                30px,
+                4vw,
+                42px
+            );
+        }
+
+        .subjects-header p {
+            margin: 0;
+
+            line-height: 1.7;
+
+            opacity: 0.7;
+        }
+
+        .subjects-count {
+            flex-shrink: 0;
+
+            padding: 10px 15px;
+
+            border-radius: 12px;
+
+            background:
+                rgba(37, 99, 235, 0.08);
+
+            color: #2563eb;
+
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+
+        /* =========================================
+           GRID
+        ========================================= */
+
+        .subjects-grid {
+            display: grid;
+
+            grid-template-columns:
+                repeat(3, 1fr);
+
+            gap: 22px;
+        }
+
+
+        /* =========================================
+           SUBJECT CARD
+        ========================================= */
+
+        .subject-card {
+            position: relative;
+            overflow: hidden;
+
+            display: flex;
+            flex-direction: column;
+
+            min-height: 360px;
+
+            padding: 28px;
+
+            border:
+                1px solid
+                rgba(120, 120, 120, 0.16);
+
+            border-radius: 22px;
+
+            background: #ffffff;
+
+            box-shadow:
+                0 8px 30px
+                rgba(0, 0, 0, 0.055);
+
+            transition:
+                transform 0.22s ease,
+                box-shadow 0.22s ease,
+                border-color 0.22s ease;
+        }
+
+        .subject-card:hover {
+            transform: translateY(-6px);
+
+            border-color:
+                rgba(37, 99, 235, 0.35);
+
+            box-shadow:
+                0 18px 40px
+                rgba(0, 0, 0, 0.10);
+        }
+
+        .subject-card::before {
+            content: "";
+
+            position: absolute;
+
+            width: 160px;
+            height: 160px;
+
+            top: -75px;
+            right: -70px;
+
+            border-radius: 50%;
+
+            background:
+                rgba(37, 99, 235, 0.06);
+        }
+
+
+        /* =========================================
+           ICON
+        ========================================= */
+
+        .subject-icon {
+            position: relative;
+            z-index: 1;
+
+            width: 62px;
+            height: 62px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            margin-bottom: 23px;
+
+            border-radius: 17px;
+
+            background:
+                rgba(37, 99, 235, 0.10);
+
+            font-size: 31px;
+        }
+
+
+        /* =========================================
+           TEXT
+        ========================================= */
+
+        .subject-card h3 {
+            position: relative;
+            z-index: 1;
+
+            margin: 0 0 11px;
+
+            font-size: 22px;
+        }
+
+        .subject-description {
+            position: relative;
+            z-index: 1;
+
+            margin: 0;
+
+            min-height: 75px;
+
+            line-height: 1.65;
+
+            font-size: 14px;
+
+            opacity: 0.7;
+        }
+
+
+        /* =========================================
+           TOPICS
+        ========================================= */
+
+        .subject-topics {
+            position: relative;
+            z-index: 1;
+
+            display: flex;
+            flex-wrap: wrap;
+
+            gap: 7px;
+
+            margin-top: 20px;
+        }
+
+        .subject-topic {
+            padding: 6px 9px;
+
+            border-radius: 8px;
+
+            background:
+                rgba(120, 120, 120, 0.08);
+
+            font-size: 11px;
+            font-weight: 600;
+
+            opacity: 0.85;
+        }
+
+
+        /* =========================================
+           CARD FOOTER
+        ========================================= */
+
+        .subject-footer {
+            position: relative;
+            z-index: 1;
+
+            margin-top: auto;
+            padding-top: 27px;
+        }
+
+        .subject-footer-info {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+
+            margin-bottom: 14px;
+
+            font-size: 12px;
+
+            opacity: 0.65;
+        }
+
+
+        /* =========================================
+           MATERIAL BUTTON
+        ========================================= */
+
+        .material-button {
+            width: 100%;
+
+            box-sizing: border-box;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            padding: 12px 15px;
+
+            border-radius: 10px;
+
+            background: #2563eb;
+
+            color: #ffffff;
+
+            text-decoration: none;
+
+            font-size: 13px;
+            font-weight: 700;
+
+            transition:
+                transform 0.2s ease,
+                opacity 0.2s ease;
+        }
+
+        .material-button:hover {
+            transform: translateY(-2px);
+            opacity: 0.92;
+        }
+
+
+        /* =========================================
+           TEST CENTER BOX
+        ========================================= */
+
+        .test-center-box {
+            display: grid;
+
+            grid-template-columns:
+                auto 1fr auto;
+
+            gap: 20px;
+
+            align-items: center;
+
+            margin-top: 45px;
+
+            padding: 28px;
+
+            border-radius: 22px;
+
+            border:
+                1px solid
+                rgba(37, 99, 235, 0.15);
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(37, 99, 235, 0.10),
+                    rgba(79, 70, 229, 0.08)
+                );
+        }
+
+        .test-center-icon {
+            width: 58px;
+            height: 58px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 16px;
+
+            background:
+                rgba(37, 99, 235, 0.12);
+
+            font-size: 28px;
+        }
+
+        .test-center-box h3 {
+            margin: 0 0 6px;
+
+            font-size: 20px;
+        }
+
+        .test-center-box p {
+            margin: 0;
+
+            line-height: 1.6;
+
+            font-size: 14px;
+
+            opacity: 0.7;
+        }
+
+        .test-center-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            padding: 12px 18px;
+
+            border-radius: 10px;
+
+            background: #2563eb;
+
+            color: white;
+
+            text-decoration: none;
+
+            white-space: nowrap;
+
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+
+        /* =========================================
+           DARK MODE
+        ========================================= */
+
+        body.dark-mode
+        .subject-card {
+            background: #1e293b;
+            border-color: #334155;
+        }
+
+        body.dark-mode
+        .subject-card:hover {
+            border-color:
+                rgba(96, 165, 250, 0.45);
+        }
+
+        body.dark-mode
+        .subject-icon {
+            background:
+                rgba(59, 130, 246, 0.15);
+        }
+
+        body.dark-mode
+        .subject-topic {
+            background:
+                rgba(255, 255, 255, 0.06);
+        }
+
+        body.dark-mode
+        .subjects-badge,
+
+        body.dark-mode
+        .subjects-count {
+            color: #60a5fa;
+
+            background:
+                rgba(59, 130, 246, 0.12);
+        }
+
+        body.dark-mode
+        .test-center-box {
+            border-color:
+                rgba(96, 165, 250, 0.15);
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(37, 99, 235, 0.13),
+                    rgba(79, 70, 229, 0.10)
+                );
+        }
+
+
+        /* =========================================
+           RESPONSIVE
+        ========================================= */
+
+        @media (max-width: 950px) {
+
+            .subjects-grid {
+                grid-template-columns:
+                    repeat(2, 1fr);
+            }
+
+        }
+
+        @media (max-width: 700px) {
+
+            .subjects-page {
+                padding-top: 30px;
+            }
+
+            .subjects-header {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .subjects-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .test-center-box {
+                grid-template-columns: 1fr;
+            }
+
+            .test-center-icon {
+                width: 50px;
+                height: 50px;
+            }
+
+            .test-center-button {
+                width: fit-content;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<!-- =========================================
+     NAVBAR
+========================================= -->
+
+<header>
+
+    <h1>
+        Student Hub
+    </h1>
+
+    <nav></nav>
+
+</header>
+
+
+<!-- =========================================
+     MAIN
+========================================= -->
+
+<main class="subjects-page">
+
+
+    <!-- =====================================
+         TITLE
+    ====================================== -->
+
+    <section class="subjects-header">
+
+        <div class="subjects-header-text">
+
+            <div class="subjects-badge">
+                📚 O‘QUV FANLARI
+            </div>
+
+            <h2>
+                Fanlarni o‘rganing
+            </h2>
+
+            <p>
+                Kerakli yo‘nalishni tanlang va
+                fan bo‘yicha o‘quv materiallaridan
+                foydalaning. Bilimingizni
+                tekshirish uchun esa alohida
+                Testlar bo‘limidan foydalaning.
+            </p>
+
+        </div>
+
+
+        <div class="subjects-count">
+            3 ta fan
+        </div>
+
+    </section>
+
+
+    <!-- =====================================
+         SUBJECT CARDS
+    ====================================== -->
+
+    <section class="subjects-grid">
+
+
+        <!-- =================================
+             DASTURLASH
+        ================================== -->
+
+        <article class="subject-card">
+
+            <div class="subject-icon">
+                💻
+            </div>
+
+            <h3>
+                Dasturlash
+            </h3>
+
+            <p class="subject-description">
+                Dasturlash asoslari,
+                algoritmlar, kod yozish
+                tamoyillari va zamonaviy
+                dasturiy texnologiyalarni
+                o‘rganing.
+            </p>
+
+
+            <div class="subject-topics">
+
+                <span class="subject-topic">
+                    Algoritmlar
+                </span>
+
+                <span class="subject-topic">
+                    JavaScript
+                </span>
+
+                <span class="subject-topic">
+                    HTML/CSS
+                </span>
+
+            </div>
+
+
+            <div class="subject-footer">
+
+                <div class="subject-footer-info">
+                    📂 Fan bo‘yicha o‘quv materiallari
+                </div>
+
+                <a
+                    href="materials.html?subject=Dasturlash"
+                    class="material-button"
+                >
+                    📂 Materiallarni ko‘rish
+                </a>
+
+            </div>
+
+        </article>
+
+
+        <!-- =================================
+             TELEKOMMUNIKATSIYA
+        ================================== -->
+
+        <article class="subject-card">
+
+            <div class="subject-icon">
+                📡
+            </div>
+
+            <h3>
+                Telekommunikatsiya
+            </h3>
+
+            <p class="subject-description">
+                Aloqa tizimlari, mobil
+                tarmoqlar, signal uzatish,
+                optik aloqa va zamonaviy
+                telekommunikatsiya
+                texnologiyalarini o‘rganing.
+            </p>
+
+
+            <div class="subject-topics">
+
+                <span class="subject-topic">
+                    Mobil aloqa
+                </span>
+
+                <span class="subject-topic">
+                    Tarmoqlar
+                </span>
+
+                <span class="subject-topic">
+                    Optik aloqa
+                </span>
+
+            </div>
+
+
+            <div class="subject-footer">
+
+                <div class="subject-footer-info">
+                    📂 Fan bo‘yicha o‘quv materiallari
+                </div>
+
+                <a
+                    href="materials.html?subject=Telekommunikatsiya"
+                    class="material-button"
+                >
+                    📂 Materiallarni ko‘rish
+                </a>
+
+            </div>
+
+        </article>
+
+
+        <!-- =================================
+             AXBOROT XAVFSIZLIGI
+        ================================== -->
+
+        <article class="subject-card">
+
+            <div class="subject-icon">
+                🔐
+            </div>
+
+            <h3>
+                Axborot xavfsizligi
+            </h3>
+
+            <p class="subject-description">
+                Ma’lumotlarni himoyalash,
+                autentifikatsiya, kriptografiya
+                va tarmoq xavfsizligining
+                asosiy tamoyillarini o‘rganing.
+            </p>
+
+
+            <div class="subject-topics">
+
+                <span class="subject-topic">
+                    Kiberxavfsizlik
+                </span>
+
+                <span class="subject-topic">
+                    Kriptografiya
+                </span>
+
+                <span class="subject-topic">
+                    Tarmoq himoyasi
+                </span>
+
+            </div>
+
+
+            <div class="subject-footer">
+
+                <div class="subject-footer-info">
+                    📂 Fan bo‘yicha o‘quv materiallari
+                </div>
+
+                <a
+                    href="materials.html?subject=Axborot%20xavfsizligi"
+                    class="material-button"
+                >
+                    📂 Materiallarni ko‘rish
+                </a>
+
+            </div>
+
+        </article>
+
+
+    </section>
+
+
+    <!-- =====================================
+         TEST CENTER
+    ====================================== -->
+
+    <section class="test-center-box">
+
+        <div class="test-center-icon">
+            📝
+        </div>
+
+
+        <div>
+
+            <h3>
+                Bilimingizni tekshirmoqchimisiz?
+            </h3>
+
+            <p>
+                Barcha fan testlari alohida
+                Testlar markazida joylashgan.
+                Faningizni tanlang va testni
+                boshlang.
+            </p>
+
+        </div>
+
+
+        <a
+            href="tests.html"
+            class="test-center-button"
+        >
+            Testlar markazi →
+        </a>
+
+    </section>
+
+
+</main>
+
+
+<!-- =========================================
+     FOOTER
+========================================= -->
+
+<footer>
+
+    <p>
+        © 2026 Student Hub
+        • Learn • Test • Improve
+    </p>
+
+</footer>
+
+
+<!-- =========================================
+     JAVASCRIPT
+========================================= -->
+
+<script src="navbar.js"></script>
+<script src="theme.js"></script>
+
+
+</body>
+
+</html>
