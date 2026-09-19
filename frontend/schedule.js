@@ -3,7 +3,7 @@
 // schedule.js
 // ==================================================
 
-const SCHEDULE_API = "http://localhost:3000/api/schedule";
+const SCHEDULE_API = "https://studenthub-7f7e.onrender.com/api/schedule";
 
 const DAYS = [
     "Dushanba",

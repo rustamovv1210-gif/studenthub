@@ -54,7 +54,7 @@ async function loadDashboard() {
         // Natijalarni backenddan olamiz
         const response =
             await fetch(
-                "http://localhost:3000/api/results",
+                "https://studenthub-7f7e.onrender.com/api/results",
                 {
                     method: "GET",
 

@@ -272,7 +272,7 @@ async function readDocxFile(file) {
 
         const response =
             await fetch(
-                "http://localhost:3000/api/self-study/docx",
+                "https://studenthub-7f7e.onrender.com/api/self-study/docx",
                 {
                     method: "POST",
                     body: formData

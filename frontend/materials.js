@@ -5,10 +5,10 @@
 // ==================================================
 
 const MATERIALS_API =
-    "http://localhost:3000/api/materials";
+    "https://studenthub-7f7e.onrender.com/api/materials";
 
 const MATERIALS_SERVER =
-    "http://localhost:3000";
+    "https://studenthub-7f7e.onrender.com";
 
 let allMaterials = [];
 

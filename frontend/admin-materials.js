@@ -4,10 +4,10 @@
 // ==================================================
 
 const API_URL =
-    "http://localhost:3000/api/materials";
+    "https://studenthub-7f7e.onrender.com/api/materials";
 
 const SERVER_URL =
-    "http://localhost:3000";
+    "https://studenthub-7f7e.onrender.com";
 
 
 const materialForm =

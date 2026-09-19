@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:3000/api/materials";
+const API_URL = "https://studenthub-7f7e.onrender.com/api/materials";
 
 document.addEventListener("DOMContentLoaded", function () {
     loadMaterial();

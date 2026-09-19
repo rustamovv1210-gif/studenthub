@@ -107,7 +107,7 @@ async function checkAdminAccess() {
     try {
 
         const response = await fetch(
-            "http://localhost:3000/api/admin",
+            "https://studenthub-7f7e.onrender.com/api/admin",
             {
                 headers: {
                     "Authorization":
@@ -187,7 +187,7 @@ async function loadTests() {
     try {
 
         const response = await fetch(
-            "http://localhost:3000/api/admin/questions",
+            "https://studenthub-7f7e.onrender.com/api/admin/questions",
             {
                 headers: {
                     "Authorization":
@@ -533,7 +533,7 @@ testForm.addEventListener(
 
 
         let url =
-            "http://localhost:3000/api/admin/questions";
+            "https://studenthub-7f7e.onrender.com/api/admin/questions";
 
         let method =
             "POST";
@@ -671,7 +671,7 @@ async function deleteTest(item) {
 
         const response =
             await fetch(
-                "http://localhost:3000/api/admin/questions/" +
+                "https://studenthub-7f7e.onrender.com/api/admin/questions/" +
                 item.id,
 
                 {

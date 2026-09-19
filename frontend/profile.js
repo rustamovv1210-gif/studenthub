@@ -204,7 +204,7 @@ saveProfileButton.addEventListener(
 
             const response =
                 await fetch(
-                    "http://localhost:3000/api/profile",
+                    "https://studenthub-7f7e.onrender.com/api/profile",
                     {
                         method: "PUT",
 

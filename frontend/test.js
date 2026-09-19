@@ -188,7 +188,7 @@ async function loadQuestions() {
 
         const response =
             await fetch(
-                "http://localhost:3000/api/questions"
+                "https://studenthub-7f7e.onrender.com/api/questions"
             );
 
 

@@ -119,7 +119,7 @@ registerButton.addEventListener(
 
             const response =
                 await fetch(
-                    "http://localhost:3000/api/register",
+                    "https://studenthub-7f7e.onrender.com/api/register",
                     {
                         method: "POST",
 

@@ -1,0 +1,1 @@
+const API_URL = "https://studenthub-7f7e.onrender.com";

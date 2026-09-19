@@ -60,7 +60,7 @@ async function checkAdminAccess() {
     try {
 
         const response = await fetch(
-            "http://localhost:3000/api/admin",
+            "https://studenthub-7f7e.onrender.com/api/admin",
             {
                 method: "GET",
 
@@ -141,7 +141,7 @@ async function loadUsers() {
     try {
 
         const response = await fetch(
-            "http://localhost:3000/api/admin/users",
+            "https://studenthub-7f7e.onrender.com/api/admin/users",
             {
                 method: "GET",
 
@@ -400,7 +400,7 @@ async function changeUserRole(user) {
     try {
 
         const response = await fetch(
-            "http://localhost:3000/api/admin/users/" +
+            "https://studenthub-7f7e.onrender.com/api/admin/users/" +
             user.id +
             "/role",
             {
@@ -502,7 +502,7 @@ async function deleteUser(user) {
     try {
 
         const response = await fetch(
-            "http://localhost:3000/api/admin/users/" +
+            "https://studenthub-7f7e.onrender.com/api/admin/users/" +
             user.id,
             {
                 method: "DELETE",
