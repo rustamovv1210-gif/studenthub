@@ -458,8 +458,25 @@ app.post(
 
                 });
             }
+// Render Environment'dagi ADMIN_EMAIL bilan mos bo'lsa,
+// foydalanuvchiga admin huquqini beramiz.
+const adminEmail = process.env.ADMIN_EMAIL
+    ?.trim()
+    .toLowerCase();
 
+if (
+    adminEmail &&
+    user.email.toLowerCase() === adminEmail &&
+    user.role !== "admin"
+) {
+    db.prepare(`
+        UPDATE users
+        SET role = 'admin'
+        WHERE id = ?
+    `).run(user.id);
 
+    user.role = "admin";
+}
             const token =
                 jwt.sign(
                     {
