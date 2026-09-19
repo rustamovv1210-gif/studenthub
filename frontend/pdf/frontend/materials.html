@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<html lang="uz">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Materiallar | Student Hub
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+
+        body {
+            margin: 0;
+
+            font-family:
+                Arial,
+                Helvetica,
+                sans-serif;
+
+            background: #f5f7fb;
+            color: #172033;
+        }
+
+
+        /* ===================================== */
+        /* PAGE */
+        /* ===================================== */
+
+        .materials-page {
+            width: min(
+                1200px,
+                calc(100% - 40px)
+            );
+
+            margin: 0 auto;
+
+            padding:
+                45px
+                0
+                70px;
+        }
+
+
+        /* ===================================== */
+        /* HERO */
+        /* ===================================== */
+
+        .materials-hero {
+            background:
+                linear-gradient(
+                    135deg,
+                    #2563eb,
+                    #4f46e5
+                );
+
+            color: white;
+
+            border-radius: 24px;
+
+            padding:
+                42px
+                40px;
+
+            margin-bottom: 28px;
+
+            box-shadow:
+                0 18px 45px
+                rgba(
+                    37,
+                    99,
+                    235,
+                    0.18
+                );
+        }
+
+
+        .materials-badge {
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 7px;
+
+            padding:
+                7px
+                13px;
+
+            border-radius: 50px;
+
+            background:
+                rgba(
+                    255,
+                    255,
+                    255,
+                    0.16
+                );
+
+            border:
+                1px solid
+                rgba(
+                    255,
+                    255,
+                    255,
+                    0.18
+                );
+
+            font-size: 13px;
+
+            font-weight: 700;
+
+            margin-bottom: 16px;
+        }
+
+
+        .materials-hero h1 {
+            margin:
+                0
+                0
+                12px;
+
+            font-size: 38px;
+
+            line-height: 1.2;
+        }
+
+
+        .materials-hero p {
+            margin: 0;
+
+            max-width: 750px;
+
+            font-size: 16px;
+
+            line-height: 1.7;
+
+            opacity: 0.94;
+        }
+
+
+        .materials-hero-bottom {
+            display: flex;
+
+            justify-content:
+                space-between;
+
+            align-items: center;
+
+            flex-wrap: wrap;
+
+            gap: 15px;
+
+            margin-top: 25px;
+        }
+
+
+        .materials-count {
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 7px;
+
+            background:
+                rgba(
+                    255,
+                    255,
+                    255,
+                    0.14
+                );
+
+            border:
+                1px solid
+                rgba(
+                    255,
+                    255,
+                    255,
+                    0.18
+                );
+
+            padding:
+                9px
+                14px;
+
+            border-radius: 10px;
+
+            font-weight: 700;
+
+            font-size: 14px;
+        }
+
+
+        /* ===================================== */
+        /* FILTER PANEL */
+        /* ===================================== */
+
+        .filter-panel {
+            background: white;
+
+            border:
+                1px solid
+                #e5e7eb;
+
+            border-radius: 18px;
+
+            padding: 22px;
+
+            margin-bottom: 25px;
+
+            box-shadow:
+                0 8px 25px
+                rgba(
+                    15,
+                    23,
+                    42,
+                    0.05
+                );
+        }
+
+
+        .filter-title {
+            margin:
+                0
+                0
+                17px;
+
+            font-size: 17px;
+        }
+
+
+        .filter-grid {
+            display: grid;
+
+            grid-template-columns:
+                2fr
+                1fr
+                1fr;
+
+            gap: 14px;
+        }
+
+
+        .filter-control {
+            width: 100%;
+
+            min-height: 46px;
+
+            border:
+                1px solid
+                #dbe1ea;
+
+            border-radius: 11px;
+
+            padding:
+                0
+                14px;
+
+            background: #fff;
+
+            color: #172033;
+
+            outline: none;
+
+            font-size: 14px;
+
+            transition: 0.2s;
+        }
+
+
+        .filter-control:focus {
+            border-color: #2563eb;
+
+            box-shadow:
+                0 0 0 3px
+                rgba(
+                    37,
+                    99,
+                    235,
+                    0.1
+                );
+        }
+
+
+        /* ===================================== */
+        /* ACTIVE FILTER */
+        /* ===================================== */
+
+        .active-filter {
+            display: none;
+
+            align-items: center;
+
+            justify-content:
+                space-between;
+
+            gap: 12px;
+
+            margin-top: 16px;
+
+            padding:
+                11px
+                13px;
+
+            border-radius: 10px;
+
+            background: #eff6ff;
+
+            color: #1d4ed8;
+
+            font-size: 14px;
+
+            font-weight: 700;
+        }
+
+
+        .clear-filter-button {
+            border: none;
+
+            background: transparent;
+
+            color: #1d4ed8;
+
+            font-weight: 700;
+
+            cursor: pointer;
+
+            font-size: 13px;
+        }
+
+
+        /* ===================================== */
+        /* MESSAGE */
+        /* ===================================== */
+
+        .materials-message {
+            min-height: 20px;
+
+            margin-bottom: 10px;
+
+            font-size: 14px;
+
+            font-weight: 700;
+        }
+
+
+        /* ===================================== */
+        /* MATERIAL GRID */
+        /* ===================================== */
+
+        .materials-grid {
+            display: grid;
+
+            grid-template-columns:
+                repeat(
+                    3,
+                    minmax(0, 1fr)
+                );
+
+            gap: 20px;
+        }
+
+
+        .student-material-card {
+            display: flex;
+
+            flex-direction: column;
+
+            background: white;
+
+            border:
+                1px solid
+                #e5e7eb;
+
+            border-radius: 18px;
+
+            padding: 22px;
+
+            min-height: 330px;
+
+            box-shadow:
+                0 8px 25px
+                rgba(
+                    15,
+                    23,
+                    42,
+                    0.05
+                );
+
+            transition:
+                transform 0.2s,
+                box-shadow 0.2s,
+                border-color 0.2s;
+        }
+
+
+        .student-material-card:hover {
+            transform:
+                translateY(-4px);
+
+            border-color: #bfdbfe;
+
+            box-shadow:
+                0 15px 35px
+                rgba(
+                    15,
+                    23,
+                    42,
+                    0.09
+                );
+        }
+
+
+        .material-card-top {
+            display: flex;
+
+            justify-content:
+                space-between;
+
+            align-items: center;
+
+            gap: 12px;
+
+            margin-bottom: 18px;
+        }
+
+
+        .material-icon {
+            width: 52px;
+
+            height: 52px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            border-radius: 14px;
+
+            background: #eff6ff;
+
+            font-size: 27px;
+        }
+
+
+        .material-type {
+            padding:
+                6px
+                10px;
+
+            border-radius: 50px;
+
+            background: #eef2ff;
+
+            color: #4338ca;
+
+            font-size: 12px;
+
+            font-weight: 800;
+
+            letter-spacing: 0.4px;
+        }
+
+
+        .student-material-card h3 {
+            margin:
+                0
+                0
+                10px;
+
+            color: #111827;
+
+            font-size: 19px;
+
+            line-height: 1.35;
+        }
+
+
+        .material-subject {
+            display: inline-flex;
+
+            align-self: flex-start;
+
+            margin-bottom: 14px;
+
+            padding:
+                6px
+                10px;
+
+            border-radius: 8px;
+
+            background: #f3f4f6;
+
+            color: #475569;
+
+            font-size: 12px;
+
+            font-weight: 700;
+        }
+
+
+        .material-description {
+            margin:
+                0
+                0
+                16px;
+
+            color: #64748b;
+
+            font-size: 14px;
+
+            line-height: 1.65;
+
+            flex-grow: 1;
+        }
+
+
+        .material-file-name {
+            padding:
+                10px
+                11px;
+
+            margin-bottom: 15px;
+
+            border-radius: 9px;
+
+            background: #f8fafc;
+
+            color: #64748b;
+
+            font-size: 12px;
+
+            overflow: hidden;
+
+            text-overflow: ellipsis;
+
+            white-space: nowrap;
+        }
+
+
+        /* ===================================== */
+        /* BUTTONS */
+        /* ===================================== */
+
+        .material-buttons {
+            display: flex;
+
+            gap: 10px;
+        }
+
+
+        .material-button {
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            flex: 1;
+
+            min-height: 42px;
+
+            padding:
+                10px
+                12px;
+
+            border-radius: 10px;
+
+            text-decoration: none;
+
+            font-size: 13px;
+
+            font-weight: 700;
+
+            transition: 0.2s;
+        }
+
+
+        .open-material {
+            background: #2563eb;
+
+            color: white;
+        }
+
+
+        .open-material:hover {
+            background: #1d4ed8;
+        }
+
+
+        .download-material {
+            background: #eef2ff;
+
+            color: #4338ca;
+        }
+
+
+        .download-material:hover {
+            background: #e0e7ff;
+        }
+
+
+        /* ===================================== */
+        /* EMPTY */
+        /* ===================================== */
+
+        .materials-empty {
+            grid-column:
+                1 / -1;
+
+            text-align: center;
+
+            padding:
+                55px
+                20px;
+
+            background: white;
+
+            border:
+                1px solid
+                #e5e7eb;
+
+            border-radius: 18px;
+        }
+
+
+        .materials-empty-icon {
+            font-size: 42px;
+
+            margin-bottom: 13px;
+        }
+
+
+        .materials-empty h3 {
+            margin:
+                0
+                0
+                8px;
+        }
+
+
+        .materials-empty p {
+            margin: 0;
+
+            color: #64748b;
+        }
+
+
+        /* ===================================== */
+        /* DARK MODE */
+        /* ===================================== */
+
+        body.dark-mode {
+            background: #0f172a;
+
+            color: #e5e7eb;
+        }
+
+
+        body.dark-mode
+        .filter-panel,
+
+        body.dark-mode
+        .student-material-card,
+
+        body.dark-mode
+        .materials-empty {
+            background: #1e293b;
+
+            border-color: #334155;
+        }
+
+
+        body.dark-mode
+        .student-material-card h3 {
+            color: #f8fafc;
+        }
+
+
+        body.dark-mode
+        .material-description,
+
+        body.dark-mode
+        .materials-empty p {
+            color: #94a3b8;
+        }
+
+
+        body.dark-mode
+        .filter-control {
+            background: #0f172a;
+
+            color: #e5e7eb;
+
+            border-color: #475569;
+        }
+
+
+        body.dark-mode
+        .material-subject {
+            background: #334155;
+
+            color: #cbd5e1;
+        }
+
+
+        body.dark-mode
+        .material-file-name {
+            background: #0f172a;
+
+            color: #94a3b8;
+        }
+
+
+        body.dark-mode
+        .material-icon {
+            background: #172554;
+        }
+
+
+        body.dark-mode
+        .material-type {
+            background: #312e81;
+
+            color: #c7d2fe;
+        }
+
+
+        body.dark-mode
+        .active-filter {
+            background: #172554;
+
+            color: #93c5fd;
+        }
+
+
+        body.dark-mode
+        .clear-filter-button {
+            color: #93c5fd;
+        }
+
+
+        /* ===================================== */
+        /* RESPONSIVE */
+        /* ===================================== */
+
+        @media (
+            max-width: 950px
+        ) {
+
+            .materials-grid {
+                grid-template-columns:
+                    repeat(
+                        2,
+                        minmax(0, 1fr)
+                    );
+            }
+
+
+            .filter-grid {
+                grid-template-columns:
+                    1fr
+                    1fr;
+            }
+
+
+            .search-control {
+                grid-column:
+                    1 / -1;
+            }
+
+        }
+
+
+        @media (
+            max-width: 650px
+        ) {
+
+            .materials-page {
+                width:
+                    min(
+                        100% - 28px,
+                        1200px
+                    );
+
+                padding-top: 25px;
+            }
+
+
+            .materials-hero {
+                padding:
+                    28px
+                    22px;
+
+                border-radius: 18px;
+            }
+
+
+            .materials-hero h1 {
+                font-size: 29px;
+            }
+
+
+            .filter-grid {
+                grid-template-columns:
+                    1fr;
+            }
+
+
+            .search-control {
+                grid-column: auto;
+            }
+
+
+            .materials-grid {
+                grid-template-columns:
+                    1fr;
+            }
+
+
+            .material-buttons {
+                flex-direction: column;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <!-- ===================================== -->
+    <!-- NAVBAR -->
+    <!-- ===================================== -->
+
+    <header>
+
+        <h1>
+            Student Hub
+        </h1>
+
+        <nav></nav>
+
+    </header>
+
+
+    <!-- ===================================== -->
+    <!-- MAIN -->
+    <!-- ===================================== -->
+
+    <main class="materials-page">
+
+
+        <!-- HERO -->
+
+        <section class="materials-hero">
+
+            <div class="materials-badge">
+                📚 O‘QUV KUTUBXONASI
+            </div>
+
+
+            <h1>
+                O‘quv materiallari
+            </h1>
+
+
+            <p>
+                Dasturlash, telekommunikatsiya
+                va axborot xavfsizligi bo‘yicha
+                darslarni o‘qing yoki yuklangan
+                PDF, DOCX, PPTX va TXT
+                materiallardan foydalaning.
+            </p>
+
+
+            <div class="materials-hero-bottom">
+
+                <div
+                    class="materials-count"
+                    id="materialsCount"
+                >
+                    📚 0 ta material
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- FILTER -->
+
+        <section class="filter-panel">
+
+            <h2 class="filter-title">
+                🔎 Materiallarni qidirish
+            </h2>
+
+
+            <div class="filter-grid">
+
+                <input
+                    type="text"
+                    id="materialSearch"
+                    class="filter-control search-control"
+                    placeholder="Material nomi yoki mavzuni qidiring..."
+                >
+
+
+                <select
+                    id="subjectFilter"
+                    class="filter-control"
+                >
+
+                    <option value="all">
+                        Barcha fanlar
+                    </option>
+
+                    <option value="Dasturlash">
+                        Dasturlash
+                    </option>
+
+                    <option value="Telekommunikatsiya">
+                        Telekommunikatsiya
+                    </option>
+
+                    <option value="Axborot xavfsizligi">
+                        Axborot xavfsizligi
+                    </option>
+
+                    <option value="Boshqa">
+                        Boshqa
+                    </option>
+
+                </select>
+
+
+                <select
+                    id="fileTypeFilter"
+                    class="filter-control"
+                >
+
+                    <option value="all">
+                        Barcha turlar
+                    </option>
+
+                    <option value=".internal">
+                        📖 Darslar
+                    </option>
+
+                    <option value=".pdf">
+                        PDF
+                    </option>
+
+                    <option value=".docx">
+                        DOCX
+                    </option>
+
+                    <option value=".pptx">
+                        PPTX
+                    </option>
+
+                    <option value=".txt">
+                        TXT
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div
+                class="active-filter"
+                id="activeFilterInfo"
+            >
+
+                <span id="activeFilterText">
+                    📚 Tanlangan fan
+                </span>
+
+
+                <button
+                    type="button"
+                    class="clear-filter-button"
+                    id="clearFilterButton"
+                >
+                    ✕ Filterni tozalash
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <div
+            class="materials-message"
+            id="materialsMessage"
+        ></div>
+
+
+        <!-- MATERIAL CARDS -->
+
+        <section
+            class="materials-grid"
+            id="materialsList"
+        >
+
+            <div class="materials-empty">
+
+                <div class="materials-empty-icon">
+                    ⏳
+                </div>
+
+                <h3>
+                    Materiallar yuklanmoqda...
+                </h3>
+
+            </div>
+
+        </section>
+                <!-- ===================================== -->
+        <!-- FOOTER INFO -->
+        <!-- ===================================== -->
+
+        <section
+            style="
+                margin-top: 30px;
+                text-align: center;
+                color: #64748b;
+                font-size: 14px;
+                line-height: 1.7;
+            "
+        >
+            <p>
+                🎓 Student Hub —
+                o‘qish, test ishlash va
+                o‘quv materiallaridan foydalanish
+                uchun yagona platforma.
+            </p>
+        </section>
+
+
+    </main>
+
+
+    <!-- ===================================== -->
+    <!-- SCRIPTS -->
+    <!-- ===================================== -->
+
+    <script src="materials.js"></script>
+    <script src="navbar.js"></script>
+    <script src="theme.js"></script>
+
+
+</body>
+
+</html>

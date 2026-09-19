@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="uz">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Testlarni boshqarish | Student Hub</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+
+<body>
+
+<header>
+
+    <h1>Student Hub</h1>
+
+    <nav>
+
+        <a href="index.html">Bosh sahifa</a>
+        <a href="subjects.html">Fanlar</a>
+        <a href="tests.html">Testlar</a>
+        <a href="schedule.html">Dars jadvali</a>
+        <a href="materials.html">Materiallar</a>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="admin.html">Admin Panel</a>
+
+        <button
+            id="themeButton"
+            class="theme-button"
+            title="Dark / Light Mode"
+        >
+            🌙
+        </button>
+
+        <a
+            href="profile.html"
+            class="account-link"
+        >
+            Profil
+        </a>
+
+    </nav>
+
+</header>
+
+
+<main>
+
+    <section class="admin-section">
+
+        <div class="admin-title">
+
+            <h2>
+                📝 Testlarni boshqarish
+            </h2>
+
+            <p>
+                Test savollarini qo‘shish,
+                tahrirlash va o‘chirish
+            </p>
+
+        </div>
+
+
+        <div
+            style="
+                text-align: center;
+                margin-bottom: 30px;
+            "
+        >
+
+            <a
+                href="admin.html"
+                class="admin-manage-link"
+            >
+                ← Admin Panelga qaytish
+            </a>
+
+        </div>
+
+
+        <!-- ==============================
+             YANGI TEST QO'SHISH
+        =============================== -->
+
+        <div class="admin-card">
+
+            <div class="admin-icon">
+                ➕
+            </div>
+
+            <h3>
+                Yangi test savoli
+            </h3>
+
+            <p>
+                Yangi savol yaratish uchun
+                quyidagi tugmani bosing.
+            </p>
+
+            <button
+                id="addTestButton"
+                type="button"
+            >
+                Test qo‘shish
+            </button>
+
+        </div>
+
+
+        <!-- ==============================
+             TEST FORM
+        =============================== -->
+
+        <div
+            id="testFormSection"
+            style="
+                display: none;
+                max-width: 700px;
+                margin: 40px auto;
+            "
+        >
+
+            <h2 id="formTitle">
+                ➕ Yangi test savoli
+            </h2>
+
+
+            <form id="testForm">
+
+
+                <label for="subject">
+                    Fan
+                </label>
+
+                <input
+                    type="text"
+                    id="subject"
+                    placeholder="Masalan: Dasturlash"
+                    required
+                >
+
+
+                <label for="question">
+                    Savol
+                </label>
+
+                <textarea
+                    id="question"
+                    placeholder="Test savolini yozing..."
+                    required
+                ></textarea>
+
+
+                <label for="optionA">
+                    A variant
+                </label>
+
+                <input
+                    type="text"
+                    id="optionA"
+                    placeholder="A javob"
+                    required
+                >
+
+
+                <label for="optionB">
+                    B variant
+                </label>
+
+                <input
+                    type="text"
+                    id="optionB"
+                    placeholder="B javob"
+                    required
+                >
+
+
+                <label for="optionC">
+                    C variant
+                </label>
+
+                <input
+                    type="text"
+                    id="optionC"
+                    placeholder="C javob"
+                    required
+                >
+
+
+                <label for="optionD">
+                    D variant
+                </label>
+
+                <input
+                    type="text"
+                    id="optionD"
+                    placeholder="D javob"
+                    required
+                >
+
+
+                <label for="correctAnswer">
+                    To‘g‘ri javob
+                </label>
+
+                <select
+                    id="correctAnswer"
+                    required
+                >
+
+                    <option value="">
+                        Tanlang
+                    </option>
+
+                    <option value="A">
+                        A
+                    </option>
+
+                    <option value="B">
+                        B
+                    </option>
+
+                    <option value="C">
+                        C
+                    </option>
+
+                    <option value="D">
+                        D
+                    </option>
+
+                </select>
+
+
+                <div
+                    style="
+                        margin-top: 25px;
+                    "
+                >
+
+                    <button
+                        type="submit"
+                        id="saveTestButton"
+                    >
+                        💾 Saqlash
+                    </button>
+
+
+                    <button
+                        type="button"
+                        id="cancelTestButton"
+                    >
+                        Bekor qilish
+                    </button>
+
+                </div>
+
+
+            </form>
+
+
+            <p id="formMessage"></p>
+
+        </div>
+
+
+        <!-- ==============================
+             TESTLAR RO'YXATI
+        =============================== -->
+
+        <div
+            id="adminTestsSection"
+            style="
+                margin-top: 50px;
+            "
+        >
+
+            <h2
+                style="
+                    text-align: center;
+                "
+            >
+                📋 Test savollari
+            </h2>
+
+
+            <p
+                id="testsMessage"
+                style="
+                    text-align: center;
+                "
+            >
+                Testlar yuklanmoqda...
+            </p>
+
+
+            <div
+                style="
+                    overflow-x: auto;
+                "
+            >
+
+                <table class="admin-users-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>ID</th>
+
+                            <th>Fan</th>
+
+                            <th>Savol</th>
+
+                            <th>To‘g‘ri javob</th>
+
+                            <th>Boshqaruv</th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody id="testsTableBody">
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+
+    </section>
+
+</main>
+
+
+<footer>
+
+    <p>
+        © 2026 Student Hub
+    </p>
+
+</footer>
+
+
+<script src="admin-tests.js"></script>
+<script src="navbar.js"></script>
+<script src="theme.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="uz">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Dars | Student Hub</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: #f4f7fb;
+            color: #1f2937;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        /* PAGE */
+
+        .lesson-page {
+            max-width: 1050px;
+            margin: 0 auto;
+            padding: 40px 20px 70px;
+        }
+
+        /* BACK */
+
+        .back-area {
+            margin-bottom: 22px;
+        }
+
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+
+            text-decoration: none;
+            color: #2563eb;
+
+            font-size: 15px;
+            font-weight: 700;
+
+            background: white;
+
+            padding: 11px 16px;
+
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+
+            transition: 0.2s;
+        }
+
+        .back-button:hover {
+            transform: translateY(-1px);
+
+            box-shadow:
+                0 5px 15px
+                rgba(0, 0, 0, 0.07);
+        }
+
+        /* HERO */
+
+        .lesson-hero {
+            background:
+                linear-gradient(
+                    135deg,
+                    #2563eb,
+                    #4f46e5
+                );
+
+            color: white;
+
+            border-radius: 22px;
+
+            padding: 38px;
+
+            margin-bottom: 25px;
+
+            box-shadow:
+                0 18px 40px
+                rgba(37, 99, 235, 0.18);
+        }
+
+        .lesson-badge {
+            display: inline-block;
+
+            background:
+                rgba(255, 255, 255, 0.16);
+
+            padding: 7px 13px;
+
+            border-radius: 50px;
+
+            font-size: 13px;
+            font-weight: 700;
+
+            margin-bottom: 18px;
+        }
+
+        .lesson-hero h1 {
+            margin: 0 0 14px;
+
+            font-size: 36px;
+            line-height: 1.2;
+        }
+
+        .lesson-hero p {
+            margin: 0;
+
+            max-width: 760px;
+
+            font-size: 16px;
+            line-height: 1.7;
+
+            opacity: 0.94;
+        }
+
+        .lesson-info {
+            display: flex;
+            flex-wrap: wrap;
+
+            gap: 12px;
+
+            margin-top: 22px;
+        }
+
+        .lesson-info-item {
+            background:
+                rgba(255, 255, 255, 0.14);
+
+            border:
+                1px solid
+                rgba(255, 255, 255, 0.18);
+
+            border-radius: 10px;
+
+            padding: 9px 13px;
+
+            font-size: 14px;
+        }
+
+        /* CONTENT */
+
+        .lesson-container {
+            background: white;
+
+            border-radius: 20px;
+
+            padding: 40px;
+
+            border: 1px solid #e5e7eb;
+
+            box-shadow:
+                0 10px 30px
+                rgba(15, 23, 42, 0.06);
+        }
+
+        .lesson-content {
+            max-width: 800px;
+            margin: 0 auto;
+
+            line-height: 1.8;
+            font-size: 16px;
+        }
+
+        .lesson-content h1 {
+            color: #111827;
+
+            font-size: 30px;
+
+            margin: 10px 0 25px;
+
+            line-height: 1.25;
+        }
+
+        .lesson-content h2 {
+            color: #1d4ed8;
+
+            font-size: 22px;
+
+            margin: 34px 0 13px;
+
+            padding-bottom: 8px;
+
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .lesson-content h3 {
+            color: #334155;
+
+            font-size: 18px;
+
+            margin: 25px 0 10px;
+        }
+
+        .lesson-content p {
+            margin: 0 0 14px;
+        }
+
+        .lesson-content pre {
+            background: #111827;
+            color: #f9fafb;
+
+            padding: 18px;
+
+            border-radius: 12px;
+
+            overflow-x: auto;
+
+            line-height: 1.6;
+
+            margin: 18px 0;
+        }
+
+        .lesson-content code {
+            font-family:
+                Consolas,
+                Monaco,
+                monospace;
+        }
+
+        /* LOADING */
+
+        .lesson-status {
+            text-align: center;
+
+            background: white;
+
+            padding: 50px 20px;
+
+            border-radius: 20px;
+
+            border: 1px solid #e5e7eb;
+        }
+
+        .status-icon {
+            font-size: 45px;
+            margin-bottom: 15px;
+        }
+
+        .lesson-status h2 {
+            margin: 0 0 10px;
+        }
+
+        .lesson-status p {
+            color: #6b7280;
+            margin: 0;
+        }
+
+        /* BOTTOM */
+
+        .lesson-bottom {
+            display: flex;
+
+            justify-content: space-between;
+            align-items: center;
+
+            gap: 15px;
+
+            margin-top: 25px;
+
+            background: white;
+
+            padding: 20px;
+
+            border-radius: 16px;
+
+            border: 1px solid #e5e7eb;
+        }
+
+        .lesson-bottom-text strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .lesson-bottom-text span {
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .materials-button {
+            text-decoration: none;
+
+            background: #2563eb;
+            color: white;
+
+            padding: 11px 18px;
+
+            border-radius: 10px;
+
+            font-weight: 700;
+
+            white-space: nowrap;
+        }
+
+        /* DARK MODE */
+
+        body.dark-mode {
+            background: #0f172a;
+            color: #e5e7eb;
+        }
+
+        body.dark-mode .back-button {
+            background: #1e293b;
+            color: #93c5fd;
+
+            border-color: #334155;
+        }
+
+        body.dark-mode .lesson-container,
+        body.dark-mode .lesson-status,
+        body.dark-mode .lesson-bottom {
+            background: #1e293b;
+            border-color: #334155;
+        }
+
+        body.dark-mode .lesson-content h1 {
+            color: #f8fafc;
+        }
+
+        body.dark-mode .lesson-content h2 {
+            color: #93c5fd;
+            border-color: #334155;
+        }
+
+        body.dark-mode .lesson-content h3 {
+            color: #cbd5e1;
+        }
+
+        body.dark-mode .lesson-status p,
+        body.dark-mode .lesson-bottom-text span {
+            color: #94a3b8;
+        }
+
+        body.dark-mode .lesson-content pre {
+            background: #020617;
+        }
+
+        /* RESPONSIVE */
+
+        @media (max-width: 700px) {
+
+            .lesson-page {
+                padding: 25px 14px 50px;
+            }
+
+            .lesson-hero {
+                padding: 27px 22px;
+                border-radius: 17px;
+            }
+
+            .lesson-hero h1 {
+                font-size: 28px;
+            }
+
+            .lesson-container {
+                padding: 25px 20px;
+                border-radius: 16px;
+            }
+
+            .lesson-content {
+                font-size: 15px;
+            }
+
+            .lesson-content h1 {
+                font-size: 26px;
+            }
+
+            .lesson-content h2 {
+                font-size: 20px;
+            }
+
+            .lesson-bottom {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .materials-button {
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+
+
+<body>
+
+    <!-- NAVBAR -->
+
+    <header>
+        <h1>Student Hub</h1>
+        <nav></nav>
+    </header>
+
+
+    <main class="lesson-page">
+
+        <!-- BACK -->
+
+        <div class="back-area">
+
+            <a
+                href="materials.html"
+                class="back-button"
+                id="backToMaterials"
+            >
+                ← Materiallarga qaytish
+            </a>
+
+        </div>
+
+
+        <!-- LOADING / ERROR -->
+
+        <div
+            class="lesson-status"
+            id="lessonStatus"
+        >
+
+            <div class="status-icon">
+                ⏳
+            </div>
+
+            <h2>
+                Dars yuklanmoqda...
+            </h2>
+
+            <p>
+                Student Hub materialni tayyorlamoqda.
+            </p>
+
+        </div>
+
+
+        <!-- LESSON -->
+
+        <section
+            id="lessonArea"
+            style="display: none;"
+        >
+
+            <div class="lesson-hero">
+
+                <div
+                    class="lesson-badge"
+                    id="lessonSubject"
+                >
+                    📚 Fan
+                </div>
+
+                <h1 id="lessonTitle">
+                    Dars
+                </h1>
+
+                <p id="lessonDescription">
+                    Dars tavsifi
+                </p>
+
+                <div class="lesson-info">
+
+                    <div class="lesson-info-item">
+                        📖 O‘quv materiali
+                    </div>
+
+                    <div class="lesson-info-item">
+                        🎓 Student Hub
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="lesson-container">
+
+                <article
+                    class="lesson-content"
+                    id="lessonContent"
+                >
+                </article>
+
+            </div>
+
+
+            <div class="lesson-bottom">
+
+                <div class="lesson-bottom-text">
+
+                    <strong>
+                        📚 O‘qishni davom ettiring
+                    </strong>
+
+                    <span>
+                        Boshqa darslarni ham Student Hub
+                        materiallar bo‘limidan topishingiz mumkin.
+                    </span>
+
+                </div>
+
+                <a
+                    href="materials.html"
+                    class="materials-button"
+                    id="bottomMaterialsButton"
+                >
+                    Barcha materiallar →
+                </a>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <script src="material.js"></script>
+    <script src="navbar.js"></script>
+    <script src="theme.js"></script>
+
+</body>
+
+</html>
