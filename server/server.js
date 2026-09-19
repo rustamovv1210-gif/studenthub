@@ -27,7 +27,7 @@ const PORT = 3000;
 // ==================================================
 
 const JWT_SECRET =
-    "student_hub_secret_key_2026";
+    process.env.JWT_SECRET || "student_hub_secret_key_2026";
 
 
 // ==================================================
