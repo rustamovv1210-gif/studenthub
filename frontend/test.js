@@ -1,7 +1,9 @@
 // ==========================================
-// STUDENT HUB - PROFESSIONAL TEST SYSTEM
-// SQLite + Result + Review
+// STUDENT HUB - SECURE TEST SYSTEM
+// Server-side grading + Result + Review
 // ==========================================
+
+const API_URL = "https://studenthub-7f7e.onrender.com";
 
 
 // ==========================================
@@ -22,13 +24,9 @@ const subject =
 // ==========================================
 
 const subjectNames = {
-
     programming: "Dasturlash",
-
     telecom: "Telekommunikatsiya",
-
     security: "Axborot xavfsizligi"
-
 };
 
 
@@ -107,26 +105,32 @@ const reviewList =
 // ==========================================
 
 let questions = [];
-
 let currentQuestion = 0;
-
-let score = 0;
-
 let selectedAnswer = null;
-
 let testFinished = false;
-
-// Foydalanuvchining barcha javoblari
 let userAnswers = [];
 
 
 // ==========================================
-// SAVOLLARNI DATABASE DAN OLISH
+// TOKEN
+// ==========================================
+
+function getToken() {
+
+    return (
+        localStorage.getItem("token") ||
+        localStorage.getItem("studentHubToken") ||
+        ""
+    );
+}
+
+
+// ==========================================
+// SAVOLLARNI SERVERDAN OLISH
 // ==========================================
 
 async function loadQuestions() {
 
-    // Fan tanlanmagan bo'lsa
     if (!subjectNames[subject]) {
 
         quizSection.style.display =
@@ -138,63 +142,53 @@ async function loadQuestions() {
         return;
     }
 
-
-    // Fan tanlangan
     subjectSelection.style.display =
         "none";
 
     quizSection.style.display =
         "block";
 
-
     quizTitle.textContent =
         subjectNames[subject] +
         " testi";
 
-
     questionNumber.textContent =
         "Savollar yuklanmoqda...";
-
 
     questionScore.textContent =
         "";
 
-
     questionElement.textContent =
         "Test savollari yuklanmoqda...";
-
 
     answersElement.innerHTML =
         "";
 
-
     resultElement.innerHTML =
         "";
-
 
     reviewSection.style.display =
         "none";
 
-
     nextButton.style.display =
         "none";
 
-
     restartButton.style.display =
         "none";
-
 
     try {
 
         const response =
             await fetch(
-                "https://studenthub-7f7e.onrender.com/api/questions"
+                API_URL +
+                "/api/questions?subject=" +
+                encodeURIComponent(
+                    subjectNames[subject]
+                )
             );
-
 
         const data =
             await response.json();
-
 
         if (!response.ok) {
 
@@ -202,95 +196,27 @@ async function loadQuestions() {
                 data.message ||
                 "Savollarni olib bo‘lmadi."
             );
-
         }
 
-
-        // ==================================
-        // FAQAT TANLANGAN FAN
-        // ==================================
-
-        const databaseQuestions =
-            data.questions.filter(
-                function (item) {
-
-                    return (
-                        item.subject
-                            .trim()
-                            .toLowerCase()
-                        ===
-                        subjectNames[subject]
-                            .trim()
-                            .toLowerCase()
-                    );
-
-                }
-            );
-
-
-        // ==================================
-        // DATABASE FORMATINI TEST FORMATIGA
-        // ==================================
-
         questions =
-            databaseQuestions.map(
+            data.questions.map(
                 function (item) {
-
-                    const answerLetter =
-                        String(
-                            item.correct_answer
-                        )
-                            .trim()
-                            .toUpperCase();
-
-
-                    const answerIndexes = {
-
-                        A: 0,
-
-                        B: 1,
-
-                        C: 2,
-
-                        D: 3
-
-                    };
-
 
                     return {
-
-                        id:
-                            item.id,
+                        id: item.id,
 
                         question:
                             item.question,
 
                         answers: [
-
                             item.option_a,
-
                             item.option_b,
-
                             item.option_c,
-
                             item.option_d
-
-                        ],
-
-                        correct:
-                            answerIndexes[
-                                answerLetter
-                            ] ?? 0
-
+                        ]
                     };
-
                 }
             );
-
-
-        // ==================================
-        // SAVOL TOPILMADI
-        // ==================================
 
         if (questions.length === 0) {
 
@@ -306,29 +232,13 @@ async function loadQuestions() {
             questionElement.textContent =
                 "Bu fan uchun test savollari mavjud emas.";
 
-            answersElement.innerHTML =
-                "";
-
             resultElement.textContent =
                 "Admin panel orqali ushbu fan uchun savol qo‘shing.";
 
-            nextButton.style.display =
-                "none";
-
-            restartButton.style.display =
-                "none";
-
             return;
-
         }
 
-
-        // ==================================
-        // TESTNI BOSHLASH
-        // ==================================
-
         startTest();
-
 
     } catch (error) {
 
@@ -336,7 +246,6 @@ async function loadQuestions() {
             "Savollarni yuklash xatosi:",
             error
         );
-
 
         questionNumber.textContent =
             "";
@@ -347,32 +256,21 @@ async function loadQuestions() {
         progressBar.style.width =
             "0%";
 
-
         questionElement.textContent =
             "Server bilan bog‘lanib bo‘lmadi.";
-
 
         answersElement.innerHTML =
             "";
 
-
         resultElement.style.color =
             "#dc2626";
 
-
         resultElement.textContent =
-            "Node.js server ishlayotganini tekshiring.";
-
+            "Test savollarini yuklab bo‘lmadi.";
 
         nextButton.style.display =
             "none";
-
-
-        restartButton.style.display =
-            "none";
-
     }
-
 }
 
 
@@ -383,75 +281,50 @@ async function loadQuestions() {
 function startTest() {
 
     if (questions.length === 0) {
-
         return;
-
     }
 
-
     currentQuestion = 0;
-
-    score = 0;
-
     selectedAnswer = null;
-
     testFinished = false;
-
     userAnswers = [];
-
 
     quizSection.style.display =
         "block";
 
-
     reviewSection.style.display =
         "none";
 
-
     reviewList.innerHTML =
         "";
-
 
     quizTitle.textContent =
         subjectNames[subject] +
         " testi";
 
-
     nextButton.style.display =
         "inline-block";
-
 
     nextButton.disabled =
         false;
 
-
-    nextButton.textContent =
-        "Keyingi savol →";
-
-
     restartButton.style.display =
         "none";
-
 
     resultElement.innerHTML =
         "";
 
-
     resultElement.style.color =
         "";
 
-
     showQuestion();
-
 
     window.scrollTo({
         top:
             quizSection.offsetTop - 90,
-
         behavior:
             "smooth"
     });
-
 }
 
 
@@ -464,14 +337,7 @@ function showQuestion() {
     const current =
         questions[currentQuestion];
 
-
-    selectedAnswer =
-        null;
-
-
-    // ======================================
-    // SAVOL RAQAMI
-    // ======================================
+    selectedAnswer = null;
 
     questionNumber.textContent =
         "Savol " +
@@ -479,19 +345,12 @@ function showQuestion() {
         " / " +
         questions.length;
 
-
-    // ======================================
-    // CURRENT SCORE
-    // ======================================
-
+    // Test tugamaguncha ballni bilmaymiz
     questionScore.textContent =
-        "To‘g‘ri: " +
-        score;
-
-
-    // ======================================
-    // PROGRESS
-    // ======================================
+        "Javoblar: " +
+        userAnswers.length +
+        " / " +
+        questions.length;
 
     const progress =
         (
@@ -499,73 +358,42 @@ function showQuestion() {
             questions.length
         ) * 100;
 
-
     progressBar.style.width =
         progress + "%";
-
-
-    // ======================================
-    // SAVOL
-    // ======================================
 
     questionElement.textContent =
         current.question;
 
-
-    // ======================================
-    // TOZALASH
-    // ======================================
-
     answersElement.innerHTML =
         "";
-
 
     resultElement.innerHTML =
         "";
 
-
     resultElement.style.color =
         "";
 
-
-    // ======================================
-    // JAVOBLARNI YARATISH
-    // ======================================
-
     const letters =
-        [
-            "A",
-            "B",
-            "C",
-            "D"
-        ];
-
+        ["A", "B", "C", "D"];
 
     current.answers.forEach(
-        function (
-            answer,
-            index
-        ) {
+        function (answer, index) {
 
             const button =
                 document.createElement(
                     "button"
                 );
 
-
             button.type =
                 "button";
 
-
             button.className =
                 "answer-button";
-
 
             button.textContent =
                 letters[index] +
                 ". " +
                 answer;
-
 
             button.addEventListener(
                 "click",
@@ -575,22 +403,14 @@ function showQuestion() {
                         index,
                         button
                     );
-
                 }
             );
-
 
             answersElement.appendChild(
                 button
             );
-
         }
     );
-
-
-    // ======================================
-    // OXIRGI SAVOL
-    // ======================================
 
     if (
         currentQuestion ===
@@ -604,9 +424,7 @@ function showQuestion() {
 
         nextButton.textContent =
             "Keyingi savol →";
-
     }
-
 }
 
 
@@ -620,21 +438,15 @@ function selectAnswer(
 ) {
 
     if (testFinished) {
-
         return;
-
     }
 
-
-    selectedAnswer =
-        index;
-
+    selectedAnswer = index;
 
     const buttons =
         answersElement.querySelectorAll(
             ".answer-button"
         );
-
 
     buttons.forEach(
         function (button) {
@@ -642,19 +454,15 @@ function selectAnswer(
             button.classList.remove(
                 "selected-answer"
             );
-
         }
     );
-
 
     selectedButton.classList.add(
         "selected-answer"
     );
 
-
     resultElement.innerHTML =
         "";
-
 }
 
 
@@ -668,81 +476,30 @@ nextButton.addEventListener(
     async function () {
 
         if (testFinished) {
-
             return;
-
         }
-
-
-        // ==================================
-        // JAVOB TANLANMAGAN
-        // ==================================
 
         if (selectedAnswer === null) {
 
             resultElement.style.color =
                 "#dc2626";
 
-
             resultElement.textContent =
                 "⚠️ Avval javobni tanlang.";
 
-
             return;
-
         }
-
 
         const current =
             questions[currentQuestion];
 
-
-        const isCorrect =
-            selectedAnswer ===
-            current.correct;
-
-
-        // ==================================
-        // SCORE
-        // ==================================
-
-        if (isCorrect) {
-
-            score++;
-
-        }
-
-
-        // ==================================
-        // JAVOB TARIXIGA SAQLASH
-        // ==================================
-
         userAnswers.push({
-
             questionId:
                 current.id,
 
-            question:
-                current.question,
-
-            answers:
-                [...current.answers],
-
             selected:
-                selectedAnswer,
-
-            correct:
-                current.correct,
-
-            isCorrect:
-                isCorrect
-
+                selectedAnswer
         });
-
-
-        // ==================================
-        // KEYINGI SAVOL
-        // ==================================
 
         if (
             currentQuestion <
@@ -754,18 +511,56 @@ nextButton.addEventListener(
             showQuestion();
 
             return;
-
         }
 
-
-        // ==================================
-        // TEST TUGADI
-        // ==================================
-
         await finishTest();
-
     }
 );
+
+
+// ==========================================
+// TESTNI SERVERDA TEKSHIRISH
+// ==========================================
+
+async function submitTestToServer() {
+
+    const response =
+        await fetch(
+            API_URL +
+            "/api/tests/submit",
+            {
+                method:
+                    "POST",
+
+                headers: {
+                    "Content-Type":
+                        "application/json"
+                },
+
+                body:
+                    JSON.stringify({
+                        subject:
+                            subjectNames[subject],
+
+                        answers:
+                            userAnswers
+                    })
+            }
+        );
+
+    const data =
+        await response.json();
+
+    if (!response.ok) {
+
+        throw new Error(
+            data.message ||
+            "Testni tekshirib bo‘lmadi."
+        );
+    }
+
+    return data;
+}
 
 
 // ==========================================
@@ -774,271 +569,321 @@ nextButton.addEventListener(
 
 async function finishTest() {
 
-    testFinished =
-        true;
-
+    testFinished = true;
 
     nextButton.disabled =
         true;
 
-
     nextButton.style.display =
         "none";
 
-
-    const total =
-        questions.length;
-
-
-    const percentage =
-        Math.round(
-            (score / total) * 100
-        );
-
-
-    // ======================================
-    // RESULT MA'LUMOTI
-    // ======================================
-
-    let resultIcon =
-        "📘";
-
-    let resultTitle =
-        "Test yakunlandi";
-
-
-    if (percentage >= 90) {
-
-        resultIcon =
-            "🏆";
-
-        resultTitle =
-            "Ajoyib natija!";
-
-    } else if (percentage >= 70) {
-
-        resultIcon =
-            "🎯";
-
-        resultTitle =
-            "Yaxshi natija!";
-
-    } else if (percentage >= 50) {
-
-        resultIcon =
-            "👍";
-
-        resultTitle =
-            "Yaxshi harakat!";
-
-    } else {
-
-        resultIcon =
-            "📚";
-
-        resultTitle =
-            "Yana mashq qilish kerak";
-
-    }
-
-
-    // ======================================
-    // QUIZ OYNASI
-    // ======================================
-
     questionNumber.textContent =
-        "Test tugadi";
-
+        "Test tekshirilmoqda...";
 
     questionScore.textContent =
-        score +
-        " / " +
-        total;
-
-
-    progressBar.style.width =
-        "100%";
-
-
-    questionElement.textContent =
         "";
 
+    questionElement.textContent =
+        "⏳ Natija serverda hisoblanmoqda...";
 
     answersElement.innerHTML =
         "";
 
-
-    resultElement.style.color =
-        "";
-
-
     resultElement.innerHTML =
-        `
-        <div class="final-result-card">
-
-            <div class="result-icon">
-                ${resultIcon}
-            </div>
-
-            <h2>
-                ${resultTitle}
-            </h2>
-
-            <p>
-                ${subjectNames[subject]}
-            </p>
-
-            <div class="final-percentage">
-                ${percentage}%
-            </div>
-
-            <div class="final-score">
-                ${score} / ${total}
-                ta to‘g‘ri javob
-            </div>
-
-            <p id="saveStatus">
-                ⏳ Natija saqlanmoqda...
-            </p>
-
-        </div>
-        `;
-
-
-    // ======================================
-    // REVIEWNI YARATISH
-    // ======================================
-
-    showReview();
-
-
-    // ======================================
-    // DATABASEGA NATIJANI SAQLASH
-    // ======================================
-
-    const saveStatus =
-        document.getElementById(
-            "saveStatus"
-        );
-
+        "";
 
     try {
 
-        const saveResult =
-            await saveUserTestResult(
+        const grading =
+            await submitTestToServer();
 
-                subjectNames[subject],
+        const score =
+            Number(grading.score);
 
-                score,
+        const total =
+            Number(grading.total);
 
-                total
+        const percentage =
+            total > 0
+                ? Math.round(
+                    (score / total) * 100
+                )
+                : 0;
 
+        // To'g'ri javoblar FAQAT endi browserga keldi
+        userAnswers =
+            Array.isArray(grading.review)
+                ? grading.review
+                : [];
+
+        let resultIcon =
+            "📘";
+
+        let resultTitle =
+            "Test yakunlandi";
+
+        if (percentage >= 90) {
+
+            resultIcon = "🏆";
+            resultTitle =
+                "Ajoyib natija!";
+
+        } else if (percentage >= 70) {
+
+            resultIcon = "🎯";
+            resultTitle =
+                "Yaxshi natija!";
+
+        } else if (percentage >= 50) {
+
+            resultIcon = "👍";
+            resultTitle =
+                "Yaxshi harakat!";
+
+        } else {
+
+            resultIcon = "📚";
+            resultTitle =
+                "Yana mashq qilish kerak";
+        }
+
+        questionNumber.textContent =
+            "Test tugadi";
+
+        questionScore.textContent =
+            score +
+            " / " +
+            total;
+
+        progressBar.style.width =
+            "100%";
+
+        questionElement.textContent =
+            "";
+
+        resultElement.style.color =
+            "";
+
+        resultElement.innerHTML =
+            `
+            <div class="final-result-card">
+
+                <div class="result-icon">
+                    ${resultIcon}
+                </div>
+
+                <h2>
+                    ${resultTitle}
+                </h2>
+
+                <p>
+                    ${subjectNames[subject]}
+                </p>
+
+                <div class="final-percentage">
+                    ${percentage}%
+                </div>
+
+                <div class="final-score">
+                    ${score} / ${total}
+                    ta to‘g‘ri javob
+                </div>
+
+                <p id="saveStatus">
+                    ⏳ Natija saqlanmoqda...
+                </p>
+
+            </div>
+            `;
+
+        // Review faqat server tekshirganidan keyin
+        showReview();
+
+        const saveStatus =
+            document.getElementById(
+                "saveStatus"
             );
 
+        const saveResult =
+            await saveUserTestResult(
+                subjectNames[subject],
+                score,
+                total
+            );
 
-        // ==================================
-        // LOGIN KERAK
-        // ==================================
-
-        if (
-            saveResult.loginRequired
-        ) {
+        if (saveResult.loginRequired) {
 
             saveStatus.textContent =
                 "⚠️ Natijani saqlash uchun login qiling.";
 
-
             saveStatus.style.color =
                 "#dc2626";
 
-
             restartButton.style.display =
                 "inline-block";
-
 
             setTimeout(
                 function () {
 
                     window.location.href =
                         "login.html";
-
                 },
                 2200
             );
 
-
             return;
-
         }
-
-
-        // ==================================
-        // SAVE ERROR
-        // ==================================
 
         if (!saveResult.success) {
 
             saveStatus.textContent =
                 "❌ Natijani databasega saqlab bo‘lmadi.";
 
-
             saveStatus.style.color =
                 "#dc2626";
 
+        } else {
 
-            restartButton.style.display =
-                "inline-block";
+            saveStatus.textContent =
+                "✅ Natija Dashboard'ga saqlandi.";
 
-
-            return;
-
+            saveStatus.style.color =
+                "#16a34a";
         }
-
-
-        // ==================================
-        // SUCCESS
-        // ==================================
-
-        saveStatus.textContent =
-            "✅ Natija Dashboard'ga saqlandi.";
-
-
-        saveStatus.style.color =
-            "#16a34a";
-
 
     } catch (error) {
 
         console.error(
-            "Natijani saqlash xatosi:",
+            "Testni tugatish xatosi:",
             error
         );
 
+        questionNumber.textContent =
+            "Xatolik";
 
-        saveStatus.textContent =
-            "❌ Natijani saqlashda xatolik yuz berdi.";
+        questionElement.textContent =
+            "Test natijasini tekshirib bo‘lmadi.";
 
-
-        saveStatus.style.color =
+        resultElement.style.color =
             "#dc2626";
 
-    }
+        resultElement.textContent =
+            error.message;
 
+        testFinished = false;
+
+        nextButton.disabled =
+            false;
+
+        nextButton.style.display =
+            "inline-block";
+
+        nextButton.textContent =
+            "Qayta urinish";
+    }
 
     restartButton.style.display =
         "inline-block";
 
-
     window.scrollTo({
-
         top:
             quizSection.offsetTop - 90,
 
         behavior:
             "smooth"
-
     });
+}
 
+
+// ==========================================
+// NATIJANI DASHBOARDGA SAQLASH
+// ==========================================
+
+async function saveUserTestResult(
+    subjectName,
+    score,
+    total
+) {
+
+    const token =
+        getToken();
+
+    if (!token) {
+
+        return {
+            success: false,
+            loginRequired: true
+        };
+    }
+
+    try {
+
+        const response =
+            await fetch(
+                API_URL +
+                "/api/results",
+                {
+                    method:
+                        "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json",
+
+                        "Authorization":
+                            "Bearer " + token
+                    },
+
+                    body:
+                        JSON.stringify({
+                            subject:
+                                subjectName,
+                            score:
+                                score,
+                            total:
+                                total
+                        })
+                }
+            );
+
+        const data =
+            await response.json();
+
+        if (
+            response.status === 401 ||
+            response.status === 403
+        ) {
+
+            return {
+                success: false,
+                loginRequired: true
+            };
+        }
+
+        return {
+            success:
+                response.ok &&
+                data.success === true,
+
+            loginRequired:
+                false,
+
+            data:
+                data
+        };
+
+    } catch (error) {
+
+        console.error(
+            "Result save error:",
+            error
+        );
+
+        return {
+            success: false,
+            loginRequired: false
+        };
+    }
 }
 
 
@@ -1051,27 +896,16 @@ function showReview() {
     reviewList.innerHTML =
         "";
 
-
     const letters =
-        [
-            "A",
-            "B",
-            "C",
-            "D"
-        ];
-
+        ["A", "B", "C", "D"];
 
     userAnswers.forEach(
-        function (
-            item,
-            index
-        ) {
+        function (item, index) {
 
             const reviewItem =
                 document.createElement(
                     "article"
                 );
-
 
             reviewItem.className =
                 "review-item " +
@@ -1081,30 +915,17 @@ function showReview() {
                         : "wrong"
                 );
 
-
             const selectedLetter =
-                letters[
-                    item.selected
-                ];
-
+                letters[item.selected];
 
             const correctLetter =
-                letters[
-                    item.correct
-                ];
-
+                letters[item.correct];
 
             const selectedText =
-                item.answers[
-                    item.selected
-                ];
-
+                item.answers[item.selected];
 
             const correctText =
-                item.answers[
-                    item.correct
-                ];
-
+                item.answers[item.correct];
 
             reviewItem.innerHTML =
                 `
@@ -1158,18 +979,14 @@ function showReview() {
                 }
                 `;
 
-
             reviewList.appendChild(
                 reviewItem
             );
-
         }
     );
 
-
     reviewSection.style.display =
         "block";
-
 }
 
 
@@ -1184,15 +1001,10 @@ function escapeHtml(value) {
             "div"
         );
 
-
     div.textContent =
-        String(
-            value ?? ""
-        );
-
+        String(value ?? "");
 
     return div.innerHTML;
-
 }
 
 
@@ -1205,7 +1017,6 @@ restartButton.addEventListener(
     function () {
 
         startTest();
-
     }
 );
 
