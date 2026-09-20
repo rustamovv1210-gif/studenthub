@@ -1,8 +1,3 @@
-// ==================================================
-// STUDENT HUB
-// MATERIALS ROUTES
-// ==================================================
-
 const express = require("express");
 const multer = require("multer");
 const path = require("path");
@@ -13,12 +8,8 @@ const db = require("./database");
 
 const router = express.Router();
 
-
-// ==================================================
-// JWT SECRET
-// ==================================================
-
 const JWT_SECRET =
+    process.env.JWT_SECRET ||
     "student_hub_secret_key_2026";
 
 
@@ -29,16 +20,10 @@ const JWT_SECRET =
 const uploadsFolder =
     path.join(__dirname, "uploads");
 
-
 if (!fs.existsSync(uploadsFolder)) {
-
-    fs.mkdirSync(
-        uploadsFolder,
-        {
-            recursive: true
-        }
-    );
-
+    fs.mkdirSync(uploadsFolder, {
+        recursive: true
+    });
 }
 
 
@@ -46,122 +31,80 @@ if (!fs.existsSync(uploadsFolder)) {
 // MULTER STORAGE
 // ==================================================
 
-const storage =
-    multer.diskStorage({
+const storage = multer.diskStorage({
 
-        destination:
-            function (
-                req,
-                file,
-                callback
-            ) {
+    destination: function (
+        req,
+        file,
+        callback
+    ) {
+        callback(null, uploadsFolder);
+    },
 
-                callback(
-                    null,
-                    uploadsFolder
-                );
+    filename: function (
+        req,
+        file,
+        callback
+    ) {
 
-            },
+        const extension =
+            path.extname(file.originalname);
 
+        const uniqueName =
+            Date.now() +
+            "-" +
+            Math.round(
+                Math.random() * 1000000000
+            ) +
+            extension;
 
-        filename:
-            function (
-                req,
-                file,
-                callback
-            ) {
+        callback(null, uniqueName);
+    }
+});
 
-                const extension =
-                    path.extname(
-                        file.originalname
-                    );
-
-
-                const uniqueName =
-                    Date.now() +
-                    "-" +
-                    Math.round(
-                        Math.random() *
-                        1000000000
-                    ) +
-                    extension;
-
-
-                callback(
-                    null,
-                    uniqueName
-                );
-
-            }
-
-    });
-
-
-// ==================================================
-// RUXSAT ETILGAN FILE TURLARI
-// ==================================================
 
 const allowedExtensions = [
-
     ".pdf",
     ".docx",
     ".pptx",
     ".txt"
-
 ];
 
 
-const materialUpload =
-    multer({
+const materialUpload = multer({
 
-        storage: storage,
+    storage: storage,
 
-        limits: {
+    limits: {
+        fileSize: 20 * 1024 * 1024
+    },
 
-            fileSize:
-                20 * 1024 * 1024
+    fileFilter: function (
+        req,
+        file,
+        callback
+    ) {
 
-        },
+        const extension =
+            path
+                .extname(file.originalname)
+                .toLowerCase();
 
+        if (
+            !allowedExtensions.includes(
+                extension
+            )
+        ) {
+            return callback(
+                new Error(
+                    "Faqat PDF, DOCX, PPTX yoki TXT fayl yuklash mumkin."
+                )
+            );
+        }
 
-        fileFilter:
-            function (
-                req,
-                file,
-                callback
-            ) {
-
-                const extension =
-                    path
-                        .extname(
-                            file.originalname
-                        )
-                        .toLowerCase();
-
-
-                if (
-                    !allowedExtensions.includes(
-                        extension
-                    )
-                ) {
-
-                    return callback(
-                        new Error(
-                            "Faqat PDF, DOCX, PPTX yoki TXT fayl yuklash mumkin."
-                        )
-                    );
-
-                }
-
-
-                callback(
-                    null,
-                    true
-                );
-
-            }
-
-    });
+        callback(null, true);
+    }
+});
 
 
 // ==================================================
@@ -177,62 +120,52 @@ function authenticateToken(
     const authHeader =
         req.headers.authorization;
 
+    if (!authHeader) {
 
-    const token =
-        authHeader &&
-        authHeader.split(" ")[1];
-
-
-    if (!token) {
-
-        return res
-            .status(401)
-            .json({
-
-                success: false,
-
-                message:
-                    "Avval tizimga kiring."
-
-            });
-
+        return res.status(401).json({
+            success: false,
+            message:
+                "Avval tizimga kiring."
+        });
     }
 
+    const parts =
+        authHeader.split(" ");
 
-    jwt.verify(
-        token,
-        JWT_SECRET,
+    if (
+        parts.length !== 2 ||
+        parts[0] !== "Bearer"
+    ) {
 
-        function (
-            error,
-            user
-        ) {
+        return res.status(401).json({
+            success: false,
+            message:
+                "Token formati noto‘g‘ri."
+        });
+    }
 
-            if (error) {
+    const token = parts[1];
 
-                return res
-                    .status(403)
-                    .json({
+    try {
 
-                        success: false,
+        const decoded =
+            jwt.verify(
+                token,
+                JWT_SECRET
+            );
 
-                        message:
-                            "Token yaroqsiz yoki muddati tugagan."
+        req.user = decoded;
 
-                    });
+        next();
 
-            }
+    } catch (error) {
 
-
-            req.user =
-                user;
-
-
-            next();
-
-        }
-    );
-
+        return res.status(401).json({
+            success: false,
+            message:
+                "Token yaroqsiz yoki muddati tugagan."
+        });
+    }
 }
 
 
@@ -251,45 +184,31 @@ function requireAdmin(
         req.user.role !== "admin"
     ) {
 
-        return res
-            .status(403)
-            .json({
-
-                success: false,
-
-                message:
-                    "Bu amal faqat admin uchun."
-
-            });
-
+        return res.status(403).json({
+            success: false,
+            message:
+                "Bu amal faqat admin uchun."
+        });
     }
 
-
     next();
-
 }
 
 
 // ==================================================
-// 1. BARCHA MATERIALLARNI OLISH
-// PUBLIC
-//
-// MUHIM:
-// content HAM FRONTENDGA YUBORILADI
+// BARCHA MATERIALLARNI OLISH
+// GET /api/materials
 // ==================================================
 
 router.get(
     "/",
 
-    function (
-        req,
-        res
-    ) {
+    async function (req, res) {
 
         try {
 
-            const materials =
-                db.prepare(`
+            const result =
+                await db.query(`
                     SELECT
                         id,
                         title,
@@ -303,89 +222,62 @@ router.get(
 
                     FROM materials
 
-                    ORDER BY
-                        id DESC
-                `).all();
-
+                    ORDER BY id DESC
+                `);
 
             return res.json({
-
                 success: true,
-
                 materials:
-                    materials
-
+                    result.rows
             });
 
-        }
-
-        catch (error) {
+        } catch (error) {
 
             console.error(
                 "Materiallarni olish xatosi:",
                 error
             );
 
-
-            return res
-                .status(500)
-                .json({
-
-                    success: false,
-
-                    message:
-                        "Materiallarni yuklab bo‘lmadi."
-
-                });
-
+            return res.status(500).json({
+                success: false,
+                message:
+                    "Materiallarni yuklab bo‘lmadi."
+            });
         }
-
     }
 );
 
 
 // ==================================================
-// 2. BITTA MATERIALNI ID BO'YICHA OLISH
-// PUBLIC
+// BITTA MATERIALNI OLISH
+// GET /api/materials/:id
 // ==================================================
 
 router.get(
     "/:id",
 
-    function (
-        req,
-        res
-    ) {
+    async function (req, res) {
 
         try {
 
             const id =
-                Number(
-                    req.params.id
-                );
-
+                Number(req.params.id);
 
             if (
                 !Number.isInteger(id) ||
                 id <= 0
             ) {
 
-                return res
-                    .status(400)
-                    .json({
-
-                        success: false,
-
-                        message:
-                            "Material ID noto‘g‘ri."
-
-                    });
-
+                return res.status(400).json({
+                    success: false,
+                    message:
+                        "Material ID noto‘g‘ri."
+                });
             }
 
-
-            const material =
-                db.prepare(`
+            const result =
+                await db.query(
+                    `
                     SELECT
                         id,
                         title,
@@ -399,64 +291,49 @@ router.get(
 
                     FROM materials
 
-                    WHERE id = ?
-                `).get(id);
+                    WHERE id = $1
+                    `,
+                    [id]
+                );
 
+            const material =
+                result.rows[0];
 
             if (!material) {
 
-                return res
-                    .status(404)
-                    .json({
-
-                        success: false,
-
-                        message:
-                            "Material topilmadi."
-
-                    });
-
+                return res.status(404).json({
+                    success: false,
+                    message:
+                        "Material topilmadi."
+                });
             }
 
-
             return res.json({
-
                 success: true,
-
                 material:
                     material
-
             });
 
-        }
-
-        catch (error) {
+        } catch (error) {
 
             console.error(
                 "Materialni olish xatosi:",
                 error
             );
 
-
-            return res
-                .status(500)
-                .json({
-
-                    success: false,
-
-                    message:
-                        "Materialni yuklab bo‘lmadi."
-
-                });
-
+            return res.status(500).json({
+                success: false,
+                message:
+                    "Materialni yuklab bo‘lmadi."
+            });
         }
-
     }
 );
 
 
 // ==================================================
-// 3. YANGI MATERIAL QO'SHISH
+// YANGI MATERIAL QO'SHISH
+// POST /api/materials
 // ADMIN
 // ==================================================
 
@@ -464,7 +341,6 @@ router.post(
     "/",
 
     authenticateToken,
-
     requireAdmin,
 
     function (
@@ -480,24 +356,15 @@ router.post(
             function (error) {
 
                 if (error) {
-
                     return next(error);
-
                 }
 
-
                 next();
-
             }
         );
-
     },
 
-
-    function (
-        req,
-        res
-    ) {
+    async function (req, res) {
 
         try {
 
@@ -506,22 +373,16 @@ router.post(
                     req.body.title || ""
                 ).trim();
 
-
             const subject =
                 String(
                     req.body.subject || ""
                 ).trim();
-
 
             const description =
                 String(
                     req.body.description || ""
                 ).trim();
 
-
-            // ==========================================
-            // TEKSHIRISH
-            // ==========================================
 
             if (
                 !title ||
@@ -534,47 +395,28 @@ router.post(
                         req.file.path
                     )
                 ) {
-
                     fs.unlinkSync(
                         req.file.path
                     );
-
                 }
 
-
-                return res
-                    .status(400)
-                    .json({
-
-                        success: false,
-
-                        message:
-                            "Material nomi va fan nomini kiriting."
-
-                    });
-
+                return res.status(400).json({
+                    success: false,
+                    message:
+                        "Material nomi va fan nomini kiriting."
+                });
             }
 
 
             if (!req.file) {
 
-                return res
-                    .status(400)
-                    .json({
-
-                        success: false,
-
-                        message:
-                            "Material faylini tanlang."
-
-                    });
-
+                return res.status(400).json({
+                    success: false,
+                    message:
+                        "Material faylini tanlang."
+                });
             }
 
-
-            // ==========================================
-            // DATABASE
-            // ==========================================
 
             const extension =
                 path
@@ -583,15 +425,16 @@ router.post(
                     )
                     .toLowerCase();
 
-
             const relativeFilePath =
                 "/uploads/" +
                 req.file.filename;
 
 
-            const insert =
-                db.prepare(`
-                    INSERT INTO materials (
+            const result =
+                await db.query(
+                    `
+                    INSERT INTO materials
+                    (
                         title,
                         subject,
                         description,
@@ -601,63 +444,39 @@ router.post(
                         content
                     )
 
-                    VALUES (
-                        ?,
-                        ?,
-                        ?,
-                        ?,
-                        ?,
-                        ?,
+                    VALUES
+                    (
+                        $1,
+                        $2,
+                        $3,
+                        $4,
+                        $5,
+                        $6,
                         NULL
                     )
-                `);
 
-
-            const result =
-                insert.run(
-
-                    title,
-
-                    subject,
-
-                    description,
-
-                    req.file.originalname,
-
-                    relativeFilePath,
-
-                    extension
-
+                    RETURNING *
+                    `,
+                    [
+                        title,
+                        subject,
+                        description,
+                        req.file.originalname,
+                        relativeFilePath,
+                        extension
+                    ]
                 );
 
 
-            const material =
-                db.prepare(`
-                    SELECT *
-                    FROM materials
-                    WHERE id = ?
-                `).get(
-                    result.lastInsertRowid
-                );
+            return res.status(201).json({
+                success: true,
+                message:
+                    "Material muvaffaqiyatli qo‘shildi.",
+                material:
+                    result.rows[0]
+            });
 
-
-            return res
-                .status(201)
-                .json({
-
-                    success: true,
-
-                    message:
-                        "Material muvaffaqiyatli qo‘shildi.",
-
-                    material:
-                        material
-
-                });
-
-        }
-
-        catch (error) {
+        } catch (error) {
 
             console.error(
                 "Material qo‘shish xatosi:",
@@ -678,39 +497,29 @@ router.post(
                         req.file.path
                     );
 
-                }
-
-                catch (
-                    deleteError
-                ) {
+                } catch (deleteError) {
 
                     console.error(
                         "Faylni tozalash xatosi:",
                         deleteError
                     );
-
                 }
-
             }
 
 
-            return res
-                .status(500)
-                .json({
-
-                    success: false,
-
-                    message:
-                        "Materialni qo‘shib bo‘lmadi."
-
-                });
-
+            return res.status(500).json({
+                success: false,
+                message:
+                    "Materialni qo‘shib bo‘lmadi."
+            });
         }
-
     }
 );
+
+
 // ==================================================
-// 4. MATERIALNI O'CHIRISH
+// MATERIALNI O'CHIRISH
+// DELETE /api/materials/:id
 // ADMIN
 // ==================================================
 
@@ -718,91 +527,67 @@ router.delete(
     "/:id",
 
     authenticateToken,
-
     requireAdmin,
 
-    function (
-        req,
-        res
-    ) {
+    async function (req, res) {
 
         try {
 
             const id =
-                Number(
-                    req.params.id
-                );
+                Number(req.params.id);
 
-
-            // ==========================================
-            // ID TEKSHIRISH
-            // ==========================================
 
             if (
                 !Number.isInteger(id) ||
                 id <= 0
             ) {
 
-                return res
-                    .status(400)
-                    .json({
-
-                        success: false,
-
-                        message:
-                            "Material ID noto‘g‘ri."
-
-                    });
-
+                return res.status(400).json({
+                    success: false,
+                    message:
+                        "Material ID noto‘g‘ri."
+                });
             }
 
 
-            // ==========================================
-            // MATERIALNI TOPISH
-            // ==========================================
-
-            const material =
-                db.prepare(`
+            const findResult =
+                await db.query(
+                    `
                     SELECT *
                     FROM materials
-                    WHERE id = ?
-                `).get(id);
+                    WHERE id = $1
+                    `,
+                    [id]
+                );
+
+            const material =
+                findResult.rows[0];
 
 
             if (!material) {
 
-                return res
-                    .status(404)
-                    .json({
-
-                        success: false,
-
-                        message:
-                            "Material topilmadi."
-
-                    });
-
+                return res.status(404).json({
+                    success: false,
+                    message:
+                        "Material topilmadi."
+                });
             }
 
 
-            // ==========================================
-            // DATABASEDAN O'CHIRISH
-            // ==========================================
-
-            db.prepare(`
+            await db.query(
+                `
                 DELETE FROM materials
-                WHERE id = ?
-            `).run(id);
+                WHERE id = $1
+                `,
+                [id]
+            );
 
-
-            // ==========================================
-            // FAQAT HAQIQIY FAYL BO'LSA
-            // SERVERDAN HAM O'CHIRISH
-            // ==========================================
 
             const isInternal =
-                material.file_type === ".internal" ||
-                material.file_path === "internal";
+                material.file_type ===
+                    ".internal" ||
+                material.file_path ===
+                    "internal";
 
 
             if (
@@ -814,7 +599,6 @@ router.delete(
                     path.basename(
                         material.file_path
                     );
-
 
                 const fullFilePath =
                     path.join(
@@ -832,48 +616,29 @@ router.delete(
                     fs.unlinkSync(
                         fullFilePath
                     );
-
                 }
-
             }
 
 
-            // ==========================================
-            // JAVOB
-            // ==========================================
-
             return res.json({
-
                 success: true,
-
                 message:
                     "Material o‘chirildi."
-
             });
 
-        }
-
-        catch (error) {
+        } catch (error) {
 
             console.error(
                 "Materialni o‘chirish xatosi:",
                 error
             );
 
-
-            return res
-                .status(500)
-                .json({
-
-                    success: false,
-
-                    message:
-                        "Materialni o‘chirib bo‘lmadi."
-
-                });
-
+            return res.status(500).json({
+                success: false,
+                message:
+                    "Materialni o‘chirib bo‘lmadi."
+            });
         }
-
     }
 );
 
@@ -890,10 +655,6 @@ router.use(
         next
     ) {
 
-        // ==========================================
-        // MULTER XATOSI
-        // ==========================================
-
         if (
             error instanceof
             multer.MulterError
@@ -904,63 +665,35 @@ router.use(
                 "LIMIT_FILE_SIZE"
             ) {
 
-                return res
-                    .status(400)
-                    .json({
-
-                        success: false,
-
-                        message:
-                            "Fayl hajmi 20 MB dan oshmasligi kerak."
-
-                    });
-
+                return res.status(400).json({
+                    success: false,
+                    message:
+                        "Fayl hajmi 20 MB dan oshmasligi kerak."
+                });
             }
 
-
-            return res
-                .status(400)
-                .json({
-
-                    success: false,
-
-                    message:
-                        error.message
-
-                });
-
+            return res.status(400).json({
+                success: false,
+                message:
+                    error.message
+            });
         }
 
 
-        // ==========================================
-        // BOSHQA XATOLAR
-        // ==========================================
-
         if (error) {
 
-            return res
-                .status(400)
-                .json({
-
-                    success: false,
-
-                    message:
-                        error.message ||
-                        "Fayl yuklashda xatolik."
-
-                });
-
+            return res.status(400).json({
+                success: false,
+                message:
+                    error.message ||
+                    "Fayl yuklashda xatolik."
+            });
         }
 
 
         next();
-
     }
 );
 
-
-// ==================================================
-// EXPORT
-// ==================================================
 
 module.exports = router;

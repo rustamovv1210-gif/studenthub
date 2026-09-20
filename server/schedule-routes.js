@@ -6,7 +6,8 @@ const db = require("./database");
 const router = express.Router();
 
 const JWT_SECRET =
-    process.env.JWT_SECRET || "student_hub_secret_key_2026";
+    process.env.JWT_SECRET ||
+    "student_hub_secret_key_2026";
 
 
 // ==================================================
@@ -24,14 +25,19 @@ function authenticateToken(req, res, next) {
         });
     }
 
-    const token = authHeader.split(" ")[1];
+    const parts = authHeader.split(" ");
 
-    if (!token) {
+    if (
+        parts.length !== 2 ||
+        parts[0] !== "Bearer"
+    ) {
         return res.status(401).json({
             success: false,
-            message: "Token topilmadi."
+            message: "Token formati noto‘g‘ri."
         });
     }
+
+    const token = parts[1];
 
     try {
 
@@ -48,9 +54,9 @@ function authenticateToken(req, res, next) {
 
         return res.status(401).json({
             success: false,
-            message: "Token yaroqsiz yoki muddati tugagan."
+            message:
+                "Token yaroqsiz yoki muddati tugagan."
         });
-
     }
 }
 
@@ -71,18 +77,20 @@ const allowedDays = [
 
 
 // ==================================================
-// FOYDALANUVCHINING SHAXSIY JADVALINI OLISH
+// SHAXSIY JADVALNI OLISH
 // GET /api/schedule
 // ==================================================
 
 router.get(
     "/",
     authenticateToken,
-    function (req, res) {
+
+    async function (req, res) {
 
         try {
 
-            const schedule = db.prepare(`
+            const result = await db.query(
+                `
                 SELECT
                     id,
                     day,
@@ -93,8 +101,11 @@ router.get(
                     room,
                     lesson_type,
                     created_at
+
                 FROM user_schedule
-                WHERE user_id = ?
+
+                WHERE user_id = $1
+
                 ORDER BY
                     CASE day
                         WHEN 'Dushanba' THEN 1
@@ -107,12 +118,13 @@ router.get(
                         ELSE 8
                     END,
                     start_time ASC
-            `).all(req.user.id);
-
+                `,
+                [req.user.id]
+            );
 
             return res.status(200).json({
                 success: true,
-                schedule: schedule
+                schedule: result.rows
             });
 
         } catch (error) {
@@ -124,11 +136,10 @@ router.get(
 
             return res.status(500).json({
                 success: false,
-                message: "Jadvalni olishda xatolik yuz berdi."
+                message:
+                    "Jadvalni olishda xatolik yuz berdi."
             });
-
         }
-
     }
 );
 
@@ -141,7 +152,8 @@ router.get(
 router.post(
     "/",
     authenticateToken,
-    function (req, res) {
+
+    async function (req, res) {
 
         try {
 
@@ -156,8 +168,6 @@ router.post(
             } = req.body;
 
 
-            // Majburiy maydonlar
-
             if (
                 !day ||
                 !start_time ||
@@ -170,23 +180,18 @@ router.post(
                     message:
                         "Kun, boshlanish vaqti, tugash vaqti va fan nomini kiriting."
                 });
-
             }
 
-
-            // Hafta kunini tekshirish
 
             if (!allowedDays.includes(day)) {
 
                 return res.status(400).json({
                     success: false,
-                    message: "Hafta kuni noto‘g‘ri."
+                    message:
+                        "Hafta kuni noto‘g‘ri."
                 });
-
             }
 
-
-            // Vaqtni tekshirish
 
             if (end_time <= start_time) {
 
@@ -195,14 +200,13 @@ router.post(
                     message:
                         "Tugash vaqti boshlanish vaqtidan keyin bo‘lishi kerak."
                 });
-
             }
 
 
-            // Darsni bazaga yozish
-
-            const result = db.prepare(`
-                INSERT INTO user_schedule (
+            const result = await db.query(
+                `
+                INSERT INTO user_schedule
+                (
                     user_id,
                     day,
                     start_time,
@@ -212,21 +216,20 @@ router.post(
                     room,
                     lesson_type
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            `).run(
-                req.user.id,
-                day,
-                start_time,
-                end_time,
-                subject.trim(),
-                teacher ? teacher.trim() : "",
-                room ? room.trim() : "",
-                lesson_type ? lesson_type.trim() : ""
-            );
 
+                VALUES
+                (
+                    $1,
+                    $2,
+                    $3,
+                    $4,
+                    $5,
+                    $6,
+                    $7,
+                    $8
+                )
 
-            const newLesson = db.prepare(`
-                SELECT
+                RETURNING
                     id,
                     day,
                     start_time,
@@ -236,19 +239,32 @@ router.post(
                     room,
                     lesson_type,
                     created_at
-                FROM user_schedule
-                WHERE id = ?
-                AND user_id = ?
-            `).get(
-                result.lastInsertRowid,
-                req.user.id
+                `,
+                [
+                    req.user.id,
+                    day,
+                    start_time,
+                    end_time,
+                    subject.trim(),
+                    teacher
+                        ? teacher.trim()
+                        : "",
+                    room
+                        ? room.trim()
+                        : "",
+                    lesson_type
+                        ? lesson_type.trim()
+                        : ""
+                ]
             );
 
 
             return res.status(201).json({
                 success: true,
-                message: "Dars jadvalga qo‘shildi.",
-                lesson: newLesson
+                message:
+                    "Dars jadvalga qo‘shildi.",
+                lesson:
+                    result.rows[0]
             });
 
         } catch (error) {
@@ -260,11 +276,10 @@ router.post(
 
             return res.status(500).json({
                 success: false,
-                message: "Darsni qo‘shishda xatolik yuz berdi."
+                message:
+                    "Darsni qo‘shishda xatolik yuz berdi."
             });
-
         }
-
     }
 );
 
@@ -277,13 +292,13 @@ router.post(
 router.put(
     "/:id",
     authenticateToken,
-    function (req, res) {
+
+    async function (req, res) {
 
         try {
 
-            const lessonId = Number(
-                req.params.id
-            );
+            const lessonId =
+                Number(req.params.id);
 
 
             if (
@@ -293,33 +308,36 @@ router.put(
 
                 return res.status(400).json({
                     success: false,
-                    message: "Dars ID noto‘g‘ri."
+                    message:
+                        "Dars ID noto‘g‘ri."
                 });
-
             }
 
 
-            // Faqat shu userning darsi ekanligini tekshiramiz
+            const existingResult =
+                await db.query(
+                    `
+                    SELECT id
+                    FROM user_schedule
+                    WHERE id = $1
+                    AND user_id = $2
+                    `,
+                    [
+                        lessonId,
+                        req.user.id
+                    ]
+                );
 
-            const existingLesson = db.prepare(`
-                SELECT *
-                FROM user_schedule
-                WHERE id = ?
-                AND user_id = ?
-            `).get(
-                lessonId,
-                req.user.id
-            );
 
-
-            if (!existingLesson) {
+            if (
+                existingResult.rows.length === 0
+            ) {
 
                 return res.status(404).json({
                     success: false,
                     message:
                         "Dars topilmadi yoki bu dars sizga tegishli emas."
                 });
-
             }
 
 
@@ -346,7 +364,6 @@ router.put(
                     message:
                         "Kun, boshlanish vaqti, tugash vaqti va fan nomini kiriting."
                 });
-
             }
 
 
@@ -354,9 +371,9 @@ router.put(
 
                 return res.status(400).json({
                     success: false,
-                    message: "Hafta kuni noto‘g‘ri."
+                    message:
+                        "Hafta kuni noto‘g‘ri."
                 });
-
             }
 
 
@@ -367,39 +384,26 @@ router.put(
                     message:
                         "Tugash vaqti boshlanish vaqtidan keyin bo‘lishi kerak."
                 });
-
             }
 
 
-            // Yangilash
-
-            db.prepare(`
+            const result = await db.query(
+                `
                 UPDATE user_schedule
+
                 SET
-                    day = ?,
-                    start_time = ?,
-                    end_time = ?,
-                    subject = ?,
-                    teacher = ?,
-                    room = ?,
-                    lesson_type = ?
-                WHERE id = ?
-                AND user_id = ?
-            `).run(
-                day,
-                start_time,
-                end_time,
-                subject.trim(),
-                teacher ? teacher.trim() : "",
-                room ? room.trim() : "",
-                lesson_type ? lesson_type.trim() : "",
-                lessonId,
-                req.user.id
-            );
+                    day = $1,
+                    start_time = $2,
+                    end_time = $3,
+                    subject = $4,
+                    teacher = $5,
+                    room = $6,
+                    lesson_type = $7
 
+                WHERE id = $8
+                AND user_id = $9
 
-            const updatedLesson = db.prepare(`
-                SELECT
+                RETURNING
                     id,
                     day,
                     start_time,
@@ -409,19 +413,33 @@ router.put(
                     room,
                     lesson_type,
                     created_at
-                FROM user_schedule
-                WHERE id = ?
-                AND user_id = ?
-            `).get(
-                lessonId,
-                req.user.id
+                `,
+                [
+                    day,
+                    start_time,
+                    end_time,
+                    subject.trim(),
+                    teacher
+                        ? teacher.trim()
+                        : "",
+                    room
+                        ? room.trim()
+                        : "",
+                    lesson_type
+                        ? lesson_type.trim()
+                        : "",
+                    lessonId,
+                    req.user.id
+                ]
             );
 
 
             return res.status(200).json({
                 success: true,
-                message: "Dars muvaffaqiyatli yangilandi.",
-                lesson: updatedLesson
+                message:
+                    "Dars muvaffaqiyatli yangilandi.",
+                lesson:
+                    result.rows[0]
             });
 
         } catch (error) {
@@ -436,9 +454,7 @@ router.put(
                 message:
                     "Darsni tahrirlashda xatolik yuz berdi."
             });
-
         }
-
     }
 );
 
@@ -451,13 +467,13 @@ router.put(
 router.delete(
     "/:id",
     authenticateToken,
-    function (req, res) {
+
+    async function (req, res) {
 
         try {
 
-            const lessonId = Number(
-                req.params.id
-            );
+            const lessonId =
+                Number(req.params.id);
 
 
             if (
@@ -467,49 +483,45 @@ router.delete(
 
                 return res.status(400).json({
                     success: false,
-                    message: "Dars ID noto‘g‘ri."
+                    message:
+                        "Dars ID noto‘g‘ri."
                 });
-
             }
 
 
-            // Dars aynan shu userga tegishlimi?
+            const result = await db.query(
+                `
+                DELETE FROM user_schedule
 
-            const lesson = db.prepare(`
-                SELECT *
-                FROM user_schedule
-                WHERE id = ?
-                AND user_id = ?
-            `).get(
-                lessonId,
-                req.user.id
+                WHERE id = $1
+                AND user_id = $2
+
+                RETURNING
+                    id,
+                    day,
+                    subject
+                `,
+                [
+                    lessonId,
+                    req.user.id
+                ]
             );
 
 
-            if (!lesson) {
+            if (result.rows.length === 0) {
 
                 return res.status(404).json({
                     success: false,
                     message:
                         "Dars topilmadi yoki bu dars sizga tegishli emas."
                 });
-
             }
-
-
-            db.prepare(`
-                DELETE FROM user_schedule
-                WHERE id = ?
-                AND user_id = ?
-            `).run(
-                lessonId,
-                req.user.id
-            );
 
 
             return res.status(200).json({
                 success: true,
-                message: "Dars jadvaldan o‘chirildi."
+                message:
+                    "Dars jadvaldan o‘chirildi."
             });
 
         } catch (error) {
@@ -524,9 +536,7 @@ router.delete(
                 message:
                     "Darsni o‘chirishda xatolik yuz berdi."
             });
-
         }
-
     }
 );
 
