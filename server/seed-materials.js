@@ -1527,148 +1527,98 @@ Shubhali fayllarni ochmaslik.`
 
 
 // ==================================================
-// DATABASE SO'ROVLARI
+// POSTGRESQL + SQLITE MATERIAL SEED
 // ==================================================
 
-const findMaterial =
-    db.prepare(`
-        SELECT id
-        FROM materials
-        WHERE title = ?
-          AND subject = ?
-        LIMIT 1
-    `);
+async function seedMaterials() {
 
+    try {
 
-const insertMaterial =
-    db.prepare(`
-        INSERT INTO materials (
-            title,
-            subject,
-            description,
-            file_name,
-            file_path,
-            file_type,
-            content
-        )
-        VALUES (
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?
-        )
-    `);
-
-
-// ==================================================
-// SEED TRANSACTION
-// ==================================================
-
-const seedMaterials =
-    db.transaction(function () {
+        await db.initDatabase();
 
         let added = 0;
         let skipped = 0;
 
         for (const material of materials) {
 
-            const exists =
-                findMaterial.get(
+            const existing = await db.query(
+                `
+                SELECT id
+                FROM materials
+                WHERE title = $1
+                AND subject = $2
+                LIMIT 1
+                `,
+                [
                     material.title,
                     material.subject
-                );
+                ]
+            );
 
-
-            if (exists) {
-
+            if (existing.rows.length > 0) {
                 skipped++;
-
                 continue;
             }
 
-
-            insertMaterial.run(
-                material.title,
-                material.subject,
-                material.description,
-
-                // Eski database'dagi NOT NULL
-                // constraint uchun texnik qiymatlar
-
-                "internal-material",
-                "internal",
-                ".internal",
-
-                material.content
+            await db.query(
+                `
+                INSERT INTO materials
+                (
+                    title,
+                    subject,
+                    description,
+                    file_name,
+                    file_path,
+                    file_type,
+                    content
+                )
+                VALUES
+                (
+                    $1, $2, $3, $4, $5, $6, $7
+                )
+                `,
+                [
+                    material.title,
+                    material.subject,
+                    material.description,
+                    "internal-material",
+                    "internal",
+                    ".internal",
+                    material.content
+                ]
             );
-
 
             added++;
         }
 
+        console.log("");
+        console.log("======================================");
+        console.log("📚 STUDENT HUB MATERIAL SEED");
+        console.log("======================================");
+        console.log("✅ Yangi qo‘shildi:", added);
+        console.log("⏭️ Oldindan mavjud:", skipped);
+        console.log("📚 Jami:", materials.length);
+        console.log("======================================");
 
-        return {
-            added,
-            skipped
-        };
-    });
+        if (db.pool) {
+            await db.pool.end();
+        }
 
+        if (db.sqlite) {
+            db.sqlite.close();
+        }
 
-// ==================================================
-// ISHGA TUSHIRISH
-// ==================================================
+        process.exit(0);
 
-try {
+    } catch (error) {
 
-    const result =
-        seedMaterials();
+        console.error(
+            "❌ Material seed xatosi:",
+            error
+        );
 
-
-    console.log("");
-    console.log(
-        "======================================"
-    );
-
-    console.log(
-        "📚 STUDENT HUB MATERIAL SEED"
-    );
-
-    console.log(
-        "======================================"
-    );
-
-    console.log(
-        "✅ Yangi qo‘shildi:",
-        result.added
-    );
-
-    console.log(
-        "⏭️ Oldindan mavjud:",
-        result.skipped
-    );
-
-    console.log(
-        "📚 Seed materiallar jami:",
-        materials.length
-    );
-
-    console.log(
-        "======================================"
-    );
-
-    console.log("");
-
+        process.exit(1);
+    }
 }
 
-catch (error) {
-
-    console.error(
-        "❌ Material seed xatosi:",
-        error
-    );
-
-    process.exitCode = 1;
-}
+seedMaterials();
