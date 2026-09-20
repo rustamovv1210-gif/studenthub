@@ -10,13 +10,8 @@ const API_URL = "https://studenthub-7f7e.onrender.com";
 // URL DAN FAN NOMINI OLISH
 // ==========================================
 
-const params =
-    new URLSearchParams(
-        window.location.search
-    );
-
-const subject =
-    params.get("subject");
+const params = new URLSearchParams(window.location.search);
+const subject = params.get("subject");
 
 
 // ==========================================
@@ -35,69 +30,43 @@ const subjectNames = {
 // ==========================================
 
 const subjectSelection =
-    document.getElementById(
-        "subjectSelection"
-    );
+    document.getElementById("subjectSelection");
 
 const quizSection =
-    document.querySelector(
-        ".quiz"
-    );
+    document.querySelector(".quiz");
 
 const quizTitle =
-    document.querySelector(
-        ".quiz-header h2"
-    );
+    document.querySelector(".quiz-header h2");
 
 const questionNumber =
-    document.getElementById(
-        "questionNumber"
-    );
+    document.getElementById("questionNumber");
 
 const questionScore =
-    document.getElementById(
-        "questionScore"
-    );
+    document.getElementById("questionScore");
 
 const progressBar =
-    document.getElementById(
-        "progressBar"
-    );
+    document.getElementById("progressBar");
 
 const questionElement =
-    document.getElementById(
-        "question"
-    );
+    document.getElementById("question");
 
 const answersElement =
-    document.getElementById(
-        "answers"
-    );
+    document.getElementById("answers");
 
 const nextButton =
-    document.getElementById(
-        "nextButton"
-    );
+    document.getElementById("nextButton");
 
 const restartButton =
-    document.getElementById(
-        "restartButton"
-    );
+    document.getElementById("restartButton");
 
 const resultElement =
-    document.getElementById(
-        "result"
-    );
+    document.getElementById("result");
 
 const reviewSection =
-    document.getElementById(
-        "reviewSection"
-    );
+    document.getElementById("reviewSection");
 
 const reviewList =
-    document.getElementById(
-        "reviewList"
-    );
+    document.getElementById("reviewList");
 
 
 // ==========================================
@@ -116,7 +85,6 @@ let userAnswers = [];
 // ==========================================
 
 function getToken() {
-
     return (
         localStorage.getItem("token") ||
         localStorage.getItem("studentHubToken") ||
@@ -132,102 +100,72 @@ function getToken() {
 async function loadQuestions() {
 
     if (!subjectNames[subject]) {
-
-        quizSection.style.display =
-            "none";
-
-        subjectSelection.style.display =
-            "block";
-
+        quizSection.style.display = "none";
+        subjectSelection.style.display = "block";
         return;
     }
 
-    subjectSelection.style.display =
-        "none";
-
-    quizSection.style.display =
-        "block";
+    subjectSelection.style.display = "none";
+    quizSection.style.display = "block";
 
     quizTitle.textContent =
-        subjectNames[subject] +
-        " testi";
+        subjectNames[subject] + " testi";
 
     questionNumber.textContent =
         "Savollar yuklanmoqda...";
 
-    questionScore.textContent =
-        "";
+    questionScore.textContent = "";
 
     questionElement.textContent =
         "Test savollari yuklanmoqda...";
 
-    answersElement.innerHTML =
-        "";
+    answersElement.innerHTML = "";
+    resultElement.innerHTML = "";
 
-    resultElement.innerHTML =
-        "";
-
-    reviewSection.style.display =
-        "none";
-
-    nextButton.style.display =
-        "none";
-
-    restartButton.style.display =
-        "none";
+    reviewSection.style.display = "none";
+    nextButton.style.display = "none";
+    restartButton.style.display = "none";
 
     try {
 
-        const response =
-            await fetch(
-                API_URL +
-                "/api/questions?subject=" +
-                encodeURIComponent(
-                    subjectNames[subject]
-                )
-            );
+        const response = await fetch(
+            API_URL +
+            "/api/questions?subject=" +
+            encodeURIComponent(
+                subjectNames[subject]
+            )
+        );
 
-        const data =
-            await response.json();
+        const data = await response.json();
 
         if (!response.ok) {
-
             throw new Error(
                 data.message ||
                 "Savollarni olib bo‘lmadi."
             );
         }
 
-        questions =
-            data.questions.map(
-                function (item) {
+        questions = data.questions.map(
+            function (item) {
+                return {
+                    id: item.id,
+                    question: item.question,
 
-                    return {
-                        id: item.id,
-
-                        question:
-                            item.question,
-
-                        answers: [
-                            item.option_a,
-                            item.option_b,
-                            item.option_c,
-                            item.option_d
-                        ]
-                    };
-                }
-            );
+                    answers: [
+                        item.option_a,
+                        item.option_b,
+                        item.option_c,
+                        item.option_d
+                    ]
+                };
+            }
+        );
 
         if (questions.length === 0) {
 
-            questionNumber.textContent =
-                "";
-
-            questionScore.textContent =
-                "";
-
-            progressBar.style.width =
-                "0%";
+            questionNumber.textContent = "";
+            questionScore.textContent = "";
+            progressBar.style.width = "0%";
 
             questionElement.textContent =
                 "Bu fan uchun test savollari mavjud emas.";
@@ -247,29 +185,21 @@ async function loadQuestions() {
             error
         );
 
-        questionNumber.textContent =
-            "";
-
-        questionScore.textContent =
-            "";
-
-        progressBar.style.width =
-            "0%";
+        questionNumber.textContent = "";
+        questionScore.textContent = "";
+        progressBar.style.width = "0%";
 
         questionElement.textContent =
             "Server bilan bog‘lanib bo‘lmadi.";
 
-        answersElement.innerHTML =
-            "";
+        answersElement.innerHTML = "";
 
-        resultElement.style.color =
-            "#dc2626";
+        resultElement.style.color = "#dc2626";
 
         resultElement.textContent =
             "Test savollarini yuklab bo‘lmadi.";
 
-        nextButton.style.display =
-            "none";
+        nextButton.style.display = "none";
     }
 }
 
@@ -289,41 +219,30 @@ function startTest() {
     testFinished = false;
     userAnswers = [];
 
-    quizSection.style.display =
-        "block";
+    quizSection.style.display = "block";
+    reviewSection.style.display = "none";
 
-    reviewSection.style.display =
-        "none";
-
-    reviewList.innerHTML =
-        "";
+    reviewList.innerHTML = "";
 
     quizTitle.textContent =
-        subjectNames[subject] +
-        " testi";
+        subjectNames[subject] + " testi";
 
-    nextButton.style.display =
-        "inline-block";
+    nextButton.style.display = "inline-block";
+    nextButton.disabled = false;
 
-    nextButton.disabled =
-        false;
+    nextButton.textContent =
+        "Keyingi savol →";
 
-    restartButton.style.display =
-        "none";
+    restartButton.style.display = "none";
 
-    resultElement.innerHTML =
-        "";
-
-    resultElement.style.color =
-        "";
+    resultElement.innerHTML = "";
+    resultElement.style.color = "";
 
     showQuestion();
 
     window.scrollTo({
-        top:
-            quizSection.offsetTop - 90,
-        behavior:
-            "smooth"
+        top: quizSection.offsetTop - 90,
+        behavior: "smooth"
     });
 }
 
@@ -345,7 +264,6 @@ function showQuestion() {
         " / " +
         questions.length;
 
-    // Test tugamaguncha ballni bilmaymiz
     questionScore.textContent =
         "Javoblar: " +
         userAnswers.length +
@@ -364,31 +282,26 @@ function showQuestion() {
     questionElement.textContent =
         current.question;
 
-    answersElement.innerHTML =
-        "";
+    answersElement.innerHTML = "";
 
-    resultElement.innerHTML =
-        "";
+    resultElement.innerHTML = "";
+    resultElement.style.color = "";
 
-    resultElement.style.color =
-        "";
-
-    const letters =
-        ["A", "B", "C", "D"];
+    const letters = [
+        "A",
+        "B",
+        "C",
+        "D"
+    ];
 
     current.answers.forEach(
         function (answer, index) {
 
             const button =
-                document.createElement(
-                    "button"
-                );
+                document.createElement("button");
 
-            button.type =
-                "button";
-
-            button.className =
-                "answer-button";
+            button.type = "button";
+            button.className = "answer-button";
 
             button.textContent =
                 letters[index] +
@@ -398,7 +311,6 @@ function showQuestion() {
             button.addEventListener(
                 "click",
                 function () {
-
                     selectAnswer(
                         index,
                         button
@@ -416,12 +328,9 @@ function showQuestion() {
         currentQuestion ===
         questions.length - 1
     ) {
-
         nextButton.textContent =
             "Testni tugatish ✓";
-
     } else {
-
         nextButton.textContent =
             "Keyingi savol →";
     }
@@ -450,7 +359,6 @@ function selectAnswer(
 
     buttons.forEach(
         function (button) {
-
             button.classList.remove(
                 "selected-answer"
             );
@@ -461,8 +369,7 @@ function selectAnswer(
         "selected-answer"
     );
 
-    resultElement.innerHTML =
-        "";
+    resultElement.innerHTML = "";
 }
 
 
@@ -494,11 +401,8 @@ nextButton.addEventListener(
             questions[currentQuestion];
 
         userAnswers.push({
-            questionId:
-                current.id,
-
-            selected:
-                selectedAnswer
+            questionId: current.id,
+            selected: selectedAnswer
         });
 
         if (
@@ -507,7 +411,6 @@ nextButton.addEventListener(
         ) {
 
             currentQuestion++;
-
             showQuestion();
 
             return;
@@ -519,40 +422,34 @@ nextButton.addEventListener(
 
 
 // ==========================================
-// TESTNI SERVERDA TEKSHIRISH
+// TESTNI SERVERGA YUBORISH
 // ==========================================
 
 async function submitTestToServer() {
 
-    const response =
-        await fetch(
-            API_URL +
-            "/api/tests/submit",
-            {
-                method:
-                    "POST",
+    const response = await fetch(
+        API_URL + "/api/tests/submit",
+        {
+            method: "POST",
 
-                headers: {
-                    "Content-Type":
-                        "application/json"
-                },
+            headers: {
+                "Content-Type":
+                    "application/json"
+            },
 
-                body:
-                    JSON.stringify({
-                        subject:
-                            subjectNames[subject],
+            body: JSON.stringify({
+                subject:
+                    subjectNames[subject],
 
-                        answers:
-                            userAnswers
-                    })
-            }
-        );
+                answers:
+                    userAnswers
+            })
+        }
+    );
 
-    const data =
-        await response.json();
+    const data = await response.json();
 
     if (!response.ok) {
-
         throw new Error(
             data.message ||
             "Testni tekshirib bo‘lmadi."
@@ -571,28 +468,25 @@ async function finishTest() {
 
     testFinished = true;
 
-    nextButton.disabled =
-        true;
-
-    nextButton.style.display =
-        "none";
+    nextButton.disabled = true;
+    nextButton.style.display = "none";
 
     questionNumber.textContent =
         "Test tekshirilmoqda...";
 
-    questionScore.textContent =
-        "";
+    questionScore.textContent = "";
 
     questionElement.textContent =
         "⏳ Natija serverda hisoblanmoqda...";
 
-    answersElement.innerHTML =
-        "";
-
-    resultElement.innerHTML =
-        "";
+    answersElement.innerHTML = "";
+    resultElement.innerHTML = "";
 
     try {
+
+        // ==================================
+        // SERVER BALLNI HISOBLAYDI
+        // ==================================
 
         const grading =
             await submitTestToServer();
@@ -610,17 +504,20 @@ async function finishTest() {
                 )
                 : 0;
 
-        // To'g'ri javoblar FAQAT endi browserga keldi
+        // To'g'ri javoblar faqat
+        // test tugagandan keyin keladi
         userAnswers =
             Array.isArray(grading.review)
                 ? grading.review
                 : [];
 
-        let resultIcon =
-            "📘";
 
-        let resultTitle =
-            "Test yakunlandi";
+        // ==================================
+        // RESULT MATNI
+        // ==================================
+
+        let resultIcon = "📘";
+        let resultTitle = "Test yakunlandi";
 
         if (percentage >= 90) {
 
@@ -647,6 +544,11 @@ async function finishTest() {
                 "Yana mashq qilish kerak";
         }
 
+
+        // ==================================
+        // NATIJANI KO'RSATISH
+        // ==================================
+
         questionNumber.textContent =
             "Test tugadi";
 
@@ -658,14 +560,12 @@ async function finishTest() {
         progressBar.style.width =
             "100%";
 
-        questionElement.textContent =
-            "";
+        questionElement.textContent = "";
+        answersElement.innerHTML = "";
 
-        resultElement.style.color =
-            "";
+        resultElement.style.color = "";
 
-        resultElement.innerHTML =
-            `
+        resultElement.innerHTML = `
             <div class="final-result-card">
 
                 <div class="result-icon">
@@ -694,10 +594,19 @@ async function finishTest() {
                 </p>
 
             </div>
-            `;
+        `;
 
-        // Review faqat server tekshirganidan keyin
+
+        // ==================================
+        // JAVOBLAR TAHLILI
+        // ==================================
+
         showReview();
+
+
+        // ==================================
+        // DASHBOARDGA SAQLASH
+        // ==================================
 
         const saveStatus =
             document.getElementById(
@@ -711,6 +620,8 @@ async function finishTest() {
                 total
             );
 
+
+        // LOGIN QILINMAGAN
         if (saveResult.loginRequired) {
 
             saveStatus.textContent =
@@ -724,7 +635,6 @@ async function finishTest() {
 
             setTimeout(
                 function () {
-
                     window.location.href =
                         "login.html";
                 },
@@ -734,6 +644,8 @@ async function finishTest() {
             return;
         }
 
+
+        // SAQLASHDA XATO
         if (!saveResult.success) {
 
             saveStatus.textContent =
@@ -744,6 +656,7 @@ async function finishTest() {
 
         } else {
 
+            // MUVAFFAQIYATLI
             saveStatus.textContent =
                 "✅ Natija Dashboard'ga saqlandi.";
 
@@ -761,6 +674,8 @@ async function finishTest() {
         questionNumber.textContent =
             "Xatolik";
 
+        questionScore.textContent = "";
+
         questionElement.textContent =
             "Test natijasini tekshirib bo‘lmadi.";
 
@@ -770,33 +685,31 @@ async function finishTest() {
         resultElement.textContent =
             error.message;
 
+        // Qayta urinish imkoniyati
         testFinished = false;
 
-        nextButton.disabled =
-            false;
-
+        nextButton.disabled = false;
         nextButton.style.display =
             "inline-block";
 
         nextButton.textContent =
             "Qayta urinish";
+
+        return;
     }
 
     restartButton.style.display =
         "inline-block";
 
     window.scrollTo({
-        top:
-            quizSection.offsetTop - 90,
-
-        behavior:
-            "smooth"
+        top: quizSection.offsetTop - 90,
+        behavior: "smooth"
     });
 }
 
 
 // ==========================================
-// NATIJANI DASHBOARDGA SAQLASH
+// NATIJANI DATABASEGA SAQLASH
 // ==========================================
 
 async function saveUserTestResult(
@@ -805,11 +718,9 @@ async function saveUserTestResult(
     total
 ) {
 
-    const token =
-        getToken();
+    const token = getToken();
 
     if (!token) {
-
         return {
             success: false,
             loginRequired: true
@@ -818,33 +729,26 @@ async function saveUserTestResult(
 
     try {
 
-        const response =
-            await fetch(
-                API_URL +
-                "/api/results",
-                {
-                    method:
-                        "POST",
+        const response = await fetch(
+            API_URL + "/api/results",
+            {
+                method: "POST",
 
-                    headers: {
-                        "Content-Type":
-                            "application/json",
+                headers: {
+                    "Content-Type":
+                        "application/json",
 
-                        "Authorization":
-                            "Bearer " + token
-                    },
+                    "Authorization":
+                        "Bearer " + token
+                },
 
-                    body:
-                        JSON.stringify({
-                            subject:
-                                subjectName,
-                            score:
-                                score,
-                            total:
-                                total
-                        })
-                }
-            );
+                body: JSON.stringify({
+                    subject: subjectName,
+                    score: score,
+                    total: total
+                })
+            }
+        );
 
         const data =
             await response.json();
@@ -853,7 +757,6 @@ async function saveUserTestResult(
             response.status === 401 ||
             response.status === 403
         ) {
-
             return {
                 success: false,
                 loginRequired: true
@@ -865,11 +768,9 @@ async function saveUserTestResult(
                 response.ok &&
                 data.success === true,
 
-            loginRequired:
-                false,
+            loginRequired: false,
 
-            data:
-                data
+            data: data
         };
 
     } catch (error) {
@@ -893,11 +794,14 @@ async function saveUserTestResult(
 
 function showReview() {
 
-    reviewList.innerHTML =
-        "";
+    reviewList.innerHTML = "";
 
-    const letters =
-        ["A", "B", "C", "D"];
+    const letters = [
+        "A",
+        "B",
+        "C",
+        "D"
+    ];
 
     userAnswers.forEach(
         function (item, index) {
@@ -927,8 +831,7 @@ function showReview() {
             const correctText =
                 item.answers[item.correct];
 
-            reviewItem.innerHTML =
-                `
+            reviewItem.innerHTML = `
                 <h4>
                     ${
                         item.isCorrect
@@ -977,7 +880,7 @@ function showReview() {
                         </p>
                         `
                 }
-                `;
+            `;
 
             reviewList.appendChild(
                 reviewItem
@@ -997,9 +900,7 @@ function showReview() {
 function escapeHtml(value) {
 
     const div =
-        document.createElement(
-            "div"
-        );
+        document.createElement("div");
 
     div.textContent =
         String(value ?? "");
@@ -1014,8 +915,8 @@ function escapeHtml(value) {
 
 restartButton.addEventListener(
     "click",
-    function () {
 
+    function () {
         startTest();
     }
 );
