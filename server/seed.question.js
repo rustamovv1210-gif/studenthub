@@ -829,87 +829,146 @@ const questions = [
         correct: "C"
     }
 ];
-
-
 // ==================================================
-// DATABASEGA QO'SHISH
-// ==================================================
-
-const insertQuestion = db.prepare(`
-    INSERT INTO questions
-    (
-        subject,
-        question,
-        option_a,
-        option_b,
-        option_c,
-        option_d,
-        correct_answer
-    )
-    VALUES (?, ?, ?, ?, ?, ?, ?)
-`);
-
-
-// ==================================================
-// OLDINGI SAVOLLARNI TOZALASH
+// DATABASEGA SAVOLLARNI QO'SHISH
+// PostgreSQL + SQLite
 // ==================================================
 
-const clearQuestions =
-    db.prepare(`
-        DELETE FROM questions
-    `);
+async function seedQuestions() {
+
+    try {
+
+        await db.initDatabase();
+
+        console.log("");
+        console.log("Savollar tekshirilmoqda...");
 
 
-// ==================================================
-// TRANSACTION
-// ==================================================
+        // Eski savollarni tozalaymiz
+        await db.query(`
+            DELETE FROM questions
+        `);
 
-const seedQuestions =
-    db.transaction(function () {
 
-        clearQuestions.run();
-
+        // 90 ta savolni qo'shamiz
         for (const q of questions) {
 
-            insertQuestion.run(
-                q.subject,
-                q.question,
-                q.a,
-                q.b,
-                q.c,
-                q.d,
-                q.correct
+            await db.query(
+                `
+                INSERT INTO questions
+                (
+                    subject,
+                    question,
+                    option_a,
+                    option_b,
+                    option_c,
+                    option_d,
+                    correct_answer
+                )
+
+                VALUES
+                (
+                    $1,
+                    $2,
+                    $3,
+                    $4,
+                    $5,
+                    $6,
+                    $7
+                )
+                `,
+                [
+                    q.subject,
+                    q.question,
+                    q.a,
+                    q.b,
+                    q.c,
+                    q.d,
+                    q.correct
+                ]
             );
         }
-    });
 
 
-// ==================================================
-// ISHGA TUSHIRISH
-// ==================================================
+        // Natijani tekshirish
+        const result =
+            await db.query(`
+                SELECT
+                    subject,
+                    COUNT(*) AS total
 
-try {
+                FROM questions
 
-    seedQuestions();
+                GROUP BY subject
 
-    console.log("");
-    console.log("======================================");
-    console.log("✅ TEST SAVOLLARI MUVAFFAQIYATLI QO‘SHILDI");
-    console.log("=======================boy===============");
-    console.log("💻 Dasturlash: 30 ta");
-    console.log("🌐 Telekommunikatsiya: 30 ta");
-    console.log("🔐 Axborot xavfsizligi: 30 ta");
-    console.log("--------------------------------------");
-    console.log("📚 Jami: " + questions.length + " ta savol");
-    console.log("======================================");
-    console.log("");
+                ORDER BY subject
+            `);
 
+
+        console.log("");
+        console.log("======================================");
+        console.log("✅ TEST SAVOLLARI QO‘SHILDI");
+        console.log("======================================");
+
+        for (const row of result.rows) {
+
+            console.log(
+                `${row.subject}: ${row.total} ta`
+            );
+        }
+
+        console.log("--------------------------------------");
+        console.log(
+            "📚 Jami: " +
+            questions.length +
+            " ta savol"
+        );
+        console.log("======================================");
+        console.log("");
+
+
+        // PostgreSQL pool bo'lsa yopamiz
+        if (db.pool) {
+            await db.pool.end();
+        }
+
+
+        // SQLite bo'lsa yopamiz
+        if (db.sqlite) {
+            db.sqlite.close();
+        }
+
+
+        process.exit(0);
+
+    } catch (error) {
+
+        console.error(
+            "❌ Savollarni qo‘shishda xatolik:",
+            error
+        );
+
+
+        if (db.pool) {
+
+            try {
+                await db.pool.end();
+            } catch (_) {}
+        }
+
+
+        if (db.sqlite) {
+
+            try {
+                db.sqlite.close();
+            } catch (_) {}
+        }
+
+
+        process.exit(1);
+    }
 }
 
-catch (error) {
 
-    console.error(
-        "❌ Savollarni qo‘shishda xatolik:",
-        error
-    );
-}
+seedQuestions();
+
