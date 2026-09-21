@@ -1614,10 +1614,7 @@ app.delete(
 // ==================================================
 // STUDENT - TEST SAVOLLARI
 // GET /api/questions
-//
-// Hozir frontend bilan moslik uchun correct_answer ham
-// yuborilmoqda. Keyin test tekshiruvini server tomonga
-// ko'chirib, correct_answer ni browserdan yashiramiz.
+// correct_answer browserga yuborilmaydi
 // ==================================================
 
 app.get(
@@ -1632,9 +1629,7 @@ app.get(
                     req.query.subject || ""
                 ).trim();
 
-
             let result;
-
 
             if (subject) {
 
@@ -1648,13 +1643,9 @@ app.get(
                             option_a,
                             option_b,
                             option_c,
-                            option_d,
-                            correct_answer
-
+                            option_d
                         FROM questions
-
                         WHERE subject = $1
-
                         ORDER BY id ASC
                         `,
                         [subject]
@@ -1671,20 +1662,15 @@ app.get(
                             option_a,
                             option_b,
                             option_c,
-                            option_d,
-                            correct_answer
-
+                            option_d
                         FROM questions
-
                         ORDER BY id ASC
                     `);
             }
 
-
             return res.status(200).json({
                 success: true,
-                questions:
-                    result.rows
+                questions: result.rows
             });
 
         } catch (error) {
@@ -1697,7 +1683,225 @@ app.get(
             return res.status(500).json({
                 success: false,
                 message:
-                    "Test savollarini olib bo‘lmadi."
+                    "Test savollarini olib bo'lmadi."
+            });
+        }
+    }
+);
+
+
+// ==================================================
+// TESTNI SERVERDA TEKSHIRISH
+// POST /api/tests/submit
+// ==================================================
+
+app.post(
+    "/api/tests/submit",
+
+    async function (req, res) {
+
+        try {
+
+            const subject =
+                String(
+                    req.body.subject || ""
+                ).trim();
+
+            const answers =
+                Array.isArray(req.body.answers)
+                    ? req.body.answers
+                    : [];
+
+            if (!subject || answers.length === 0) {
+
+                return res.status(400).json({
+                    success: false,
+                    message:
+                        "Test javoblari topilmadi."
+                });
+            }
+
+            const ids =
+                answers.map(function (item) {
+                    return Number(item.questionId);
+                });
+
+            const validIds =
+                ids.every(function (id) {
+                    return Number.isInteger(id) && id > 0;
+                });
+
+            if (!validIds) {
+
+                return res.status(400).json({
+                    success: false,
+                    message:
+                        "Savol ID noto'g'ri."
+                });
+            }
+
+            // Bir xil ID yuborib testni aldashga yo'l qo'ymaymiz
+            const uniqueIds =
+                [...new Set(ids)];
+
+            if (uniqueIds.length !== ids.length) {
+
+                return res.status(400).json({
+                    success: false,
+                    message:
+                        "Takrorlangan savollar mavjud."
+                });
+            }
+
+            const placeholders =
+                uniqueIds
+                    .map(function (_, index) {
+                        return "$" + (index + 2);
+                    })
+                    .join(", ");
+
+            const result =
+                await db.query(
+                    `
+                    SELECT
+                        id,
+                        subject,
+                        question,
+                        option_a,
+                        option_b,
+                        option_c,
+                        option_d,
+                        correct_answer
+                    FROM questions
+                    WHERE subject = $1
+                    AND id IN (${placeholders})
+                    ORDER BY id ASC
+                    `,
+                    [subject, ...uniqueIds]
+                );
+
+            const questionMap =
+                new Map(
+                    result.rows.map(function (item) {
+                        return [
+                            Number(item.id),
+                            item
+                        ];
+                    })
+                );
+
+            const answerIndexes = {
+                A: 0,
+                B: 1,
+                C: 2,
+                D: 3
+            };
+
+            let score = 0;
+            const review = [];
+
+            for (const answer of answers) {
+
+                const question =
+                    questionMap.get(
+                        Number(answer.questionId)
+                    );
+
+                if (!question) {
+
+                    return res.status(400).json({
+                        success: false,
+                        message:
+                            "Testdagi savollardan biri topilmadi."
+                    });
+                }
+
+                const selected =
+                    Number(answer.selected);
+
+                if (
+                    !Number.isInteger(selected) ||
+                    selected < 0 ||
+                    selected > 3
+                ) {
+
+                    return res.status(400).json({
+                        success: false,
+                        message:
+                            "Tanlangan javob noto'g'ri."
+                    });
+                }
+
+                const correctLetter =
+                    String(
+                        question.correct_answer
+                    )
+                        .trim()
+                        .toUpperCase();
+
+                const correct =
+                    answerIndexes[correctLetter];
+
+                if (correct === undefined) {
+
+                    return res.status(500).json({
+                        success: false,
+                        message:
+                            "Savolning to'g'ri javobi noto'g'ri saqlangan."
+                    });
+                }
+
+                const isCorrect =
+                    selected === correct;
+
+                if (isCorrect) {
+                    score++;
+                }
+
+                review.push({
+
+                    questionId:
+                        Number(question.id),
+
+                    question:
+                        question.question,
+
+                    answers: [
+                        question.option_a,
+                        question.option_b,
+                        question.option_c,
+                        question.option_d
+                    ],
+
+                    selected:
+                        selected,
+
+                    correct:
+                        correct,
+
+                    isCorrect:
+                        isCorrect
+                });
+            }
+
+            return res.status(200).json({
+                success: true,
+                score: score,
+                total: review.length,
+                review: review
+            });
+
+        } catch (error) {
+
+            console.error(
+                "Test submit xatosi:",
+                error
+            );
+
+            return res.status(500).json({
+                success: false,
+                message:
+                    "Testni tekshirib bo'lmadi."
             });
         }
     }
