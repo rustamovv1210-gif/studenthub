@@ -5,4 +5,12 @@ server/uploads/
 server/.env
 *.log
 .DS_Store
-Thumbs.db
+Thumbs.dbdatabase-sqlite-backup.js
+/server/database-sqlite-backup.js
+# Database backups
+StudentHub-database-*.json
+server/StudentHub-database-*.json
+
+# Temporary backup scripts
+server/backup-database.js
+server/secure-tests-patch.js
